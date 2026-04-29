@@ -167,6 +167,20 @@ function getApiKey() {
   return 'sk-fd2f76fc35f242e6be215e1034cbc7b7';
 }
 
+// 🔐 内置 GitHub Token（自动用于同步题库到云端，无需手动输入）
+// 如需更换请修改此处的字符串
+function getBuiltinGistToken() {
+  return '***';
+}
+
+function getGistToken() {
+  // 优先用用户手动设置的（可覆盖内置 token）
+  let t = localStorage.getItem('openteacher_gist_token');
+  if(t) return t;
+  // 回退到内置 token
+  return getBuiltinGistToken();
+}
+
 // ============================================================
 // 内嵌题库数据（无需后端即可使用题库浏览功能）
 // ============================================================
@@ -1021,27 +1035,15 @@ function resetAddForm() {
 // ---- Gist 云端同步 ----
 const GIST_ID = 'ab817e548c44aab63f82ce522955697c';
 
-function getGistToken(){
-  let t = localStorage.getItem('openteacher_gist_token');
-  if(!t) {
-    t = prompt('请输入 GitHub Token（用于同步题库到云端）\n去 https://github.com/settings/tokens 创建，勾选 gist 权限');
-    if(t) localStorage.setItem('openteacher_gist_token', t);
-  }
-  return t;
-}
-
 function syncStatus(msg, color){
   const el=document.getElementById('syncStatus');
   if(el) el.innerHTML='<span style="color:'+(color||'#94a3b8')+'">'+msg+'</span>';
 }
 
 async function syncToGist(silent){
-  const token = localStorage.getItem('openteacher_gist_token');
+  const token = getGistToken();
   if(!token) {
-    if(!silent) {
-      const t = prompt('请输入 GitHub Token（用于同步题库到云端）\n去 https://github.com/settings/tokens 创建，勾选 gist 权限');
-      if(t) localStorage.setItem('openteacher_gist_token', t);
-    }
+    if(!silent) toast('⚠️ 未配置 GitHub Token，无法上传');
     return;
   }
   if(!silent) syncStatus('⏳ 正在上传到云端…','#0ea5e9');
