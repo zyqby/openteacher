@@ -146,20 +146,9 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 // ============================================================
 // SYSTEM_ANALYZE
 // ============================================================
-const SYSTEM_ANALYZE = `你是 OpenTeacher，小学数学出题专家。
-出题规范：贴合时政/生活场景，每题标注年级/单元/知识点/难度（★~★★★★★），配提示和答案。
-语言简洁，适合小学生。
-输出严格 JSON 格式：
-{
-  "grade":"三年级","unit":"倍的认识","knowledge_point":"倍数关系","difficulty":"★★★☆☆",
-  "questions":[
-    {"id":1,"type":"应用题","content":"题目","hint":"提示","answer":"答案","steps":["步1","步2"]},
-    {"id":2,"type":"选择题","content":"题目","options":["A.选项1","B.选项2","C.选项3","D.选项4"],"answer":"A","hint":"提示","steps":["步1"]},
-    {"id":3,"type":"填空题","content":"题目","answer":"答案","hint":"提示"},
-    {"id":4,"type":"计算题","content":"题目","answer":"答案","steps":["步1"]}
-  ]
-}
-同类变式额外加"original_analysis"描述原题结构。`;
+const SYSTEM_ANALYZE = `你是一名小学数学老师，根据用户要求出题。
+要求：贴合时政/生活场景，每题标注年级/单元/知识点/难度，配提示和分步答案。
+输出JSON：{grade,unit,knowledge_point,difficulty,questions:[{id,type,content,hint,answer,steps}]}`;
 
 // ============================================================
 // 演示题库
@@ -285,14 +274,28 @@ function switchTab(id){
 // API 调用
 // ============================================================
 // 纯 API 调用，返回 JSON 不自动渲染（用于多步流程）
+// ============================================================
+// API 调用（带进度、超时、重试、缓存）
+// ============================================================
+const API_CACHE = new Map();
+function getCacheKey(messages){
+  return messages.map(m=>m.role+':'+m.content.slice(0,40)).join('|');
+}
 async function callAPIRaw(messages, modelName){
   modelName = modelName || 'deepseek-v4-pro';
+  const cacheKey = getCacheKey(messages);
+  const cached = API_CACHE.get(cacheKey);
+  if(cached && Date.now()-cached.time < 15*60*1000) return cached.data;
   try{
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), 20000);
     const resp=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.3,max_tokens:2048})
+      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.3,max_tokens:2048}),
+      signal:controller.signal
     });
+    clearTimeout(timer);
     if(!resp.ok){ toast('请求失败 ('+resp.status+')'); return null; }
     const data=await resp.json();
     let content=data.choices[0].message.content;
@@ -301,89 +304,158 @@ async function callAPIRaw(messages, modelName){
       if(m) content=m[0];
     }
     let json=null;
-    try{json=JSON.parse(content.replace(/^\`\`\`json\s*/,'').replace(/\s*\`\`\`$/,'').trim());}catch(e){}
+    try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
     if(!json){ const m=content.match(/\{[\s\S]*\}/); if(m) try{json=JSON.parse(m[0]);}catch(e2){} }
     if(!json) throw new Error('格式异常');
+    API_CACHE.set(cacheKey, {data:json, time:Date.now()});
     return json;
-  }catch(e){ toast('AI 返回格式异常'); return null; }
+  }catch(e){
+    if(e.name==='AbortError'){ toast('请求超时，可稍后重试'); return null; }
+    toast('AI 返回格式异常'); return null;
+  }
 }
 
 async function callAPI(messages,tabId){
   return callAPIWithModel('deepseek-v4-pro', messages, tabId);
 }
+
 async function callAPIWithModel(model, messages, tabId){
   const tab=document.getElementById('tab-'+tabId);
-  tab.innerHTML=`<div class="loading-box"><div class="spinner"></div><div class="msg">🤔 AI 正在思考中…</div></div>`;
-  try{
-    const resp=await fetch('https://api.deepseek.com/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:model,messages,stream:false,temperature:0.3,max_tokens:4096})
-    });
-    if(!resp.ok){
-      let errTxt='请求失败 ('+resp.status+')';
-      try{const e=await resp.json();errTxt=e.error?.message||errTxt;}catch(e){errTxt=await resp.text()}
-      tab.innerHTML=`<div class="card"><h3>❌ 出错了</h3><p>${errTxt}</p><button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
-      return null;
-    }
-    const data=await resp.json();
-    let content=data.choices[0].message.content;
-    // 如果 content 为空但 reasoning_content 有内容（DeepSeek v4-pro 特性）
-    if(!content && data.choices[0].message.reasoning_content){
-      // 尝试从 reasoning 中提取 JSON
-      const rc = data.choices[0].message.reasoning_content;
-      const m = rc.match(/\{[\s\S]*\}/);
-      if(m) content = m[0];
-    }
-    let json=null;
-    try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
-    if(!json){
-      // 尝试找任何 JSON 对象
-      const matches = content.match(/\{[\s\S]*\}/);
-      if(matches) try{json=JSON.parse(matches[0]);}catch(e2){}
-    }
-    if(!json) throw new Error('AI 返回格式异常，请重试');
-    // 统一处理：标准化 JSON 字段
-    // 修正可能的外层字段名（DeepSeek 有时用 text 不是 content）
-    if(json.questions){
-      json.questions = json.questions.map((q,i) => {
-        // 选择题自动补充选项
-        if((q.type||'').includes('选择') && (!q.options || !q.options.length)){
-          q.options = ['A. 选项A','B. 选项B','C. 选项C','D. 选项D'];
-        }
-        return {
-          id: q.id || i+1,
-          type: q.type || '应用题',
-          content: q.content || q.text || q.question || '',
-          options: q.options || [],
-          hint: q.hint || '',
-          answer: q.answer || '',
-          steps: q.steps || []
-        };
-      });
-    }
-    // 如果返回的是 problems 数组（不是 questions），转换成标准格式
-    if(json.problems && !json.questions){
-      json.questions = (json.problems||[]).map((p,i) => ({
-        id: i+1, type: '应用题',
-        content: typeof p === 'string' ? p : p.content || p.question || p.text || '',
-        hint: p.hint || '',
-        answer: p.answer || '',
-        steps: p.steps || []
-      }));
-    }
-    // 智能分析结果可能没有 questions 数组
+  const isGenerate = tabId==='math-generate';
+
+  // 缓存检查
+  const cacheKey = getCacheKey(messages);
+  const cached = API_CACHE.get(cacheKey);
+  if(cached && Date.now()-cached.time < 15*60*1000){
+    const json = cached.data;
     if(tabId === 'math-analyze' && (!json.questions || !json.questions.length)){
       renderAnalyzeResult(tabId, json, 'DeepSeek AI');
     } else {
       renderResult(tabId,json,'DeepSeek AI');
     }
     return json;
-  }catch(e){
-    tab.innerHTML=`<div class="card"><h3>❌ 出错了</h3><p>${e.message}</p><button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
-    return null;
   }
+
+  // 分步进度显示
+  const steps = isGenerate
+    ? ['🔄 正在连接 AI…', '📝 正在生成题目…', '✅ 解析结果中…']
+    : ['🔄 正在连接 AI…', '💭 AI 思考中…', '✅ 解析结果中…'];
+
+  tab.innerHTML=`<div class="loading-box" id="loading-${tabId}">
+    <div class="spinner"></div>
+    <div class="msg" id="status-${tabId}">${steps[0]}</div>
+    <div class="progress-bar" id="progress-${tabId}" style="margin-top:12px;height:4px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden">
+      <div style="width:0%;height:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:4px;transition:width 2s ease" id="bar-${tabId}"></div>
+    </div>
+  </div>`;
+
+  function setStatus(idx){
+    const el = document.getElementById('status-'+tabId);
+    if(el) el.textContent = steps[idx] || steps[steps.length-1];
+    const bar = document.getElementById('bar-'+tabId);
+    if(bar) bar.style.width = (idx+1)*(100/steps.length)+'%';
+  }
+
+  setStatus(0);
+  await sleep(600);
+  setStatus(1);
+
+  // 尝试请求（最多重试 2 次）
+  let lastError = null;
+  for(let attempt=0; attempt<2; attempt++){
+    if(attempt>0){
+      setStatus(1);
+      document.getElementById('status-'+tabId).textContent = `🔄 重试第 ${attempt+1} 次…`;
+    }
+    try{
+      const controller = new AbortController();
+      const timer = setTimeout(()=>controller.abort(), 25000);
+      const resp=await fetch('https://api.deepseek.com/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+        body:JSON.stringify({model:model,messages,stream:false,temperature:0.3,max_tokens:2048}),
+        signal:controller.signal
+      });
+      clearTimeout(timer);
+      if(!resp.ok){
+        let errTxt='请求失败 ('+resp.status+')';
+        try{const e=await resp.json();errTxt=e.error?.message||errTxt;}catch(e){errTxt=await resp.text()}
+        if(resp.status===429 || resp.status>=500){
+          lastError = errTxt;
+          await sleep(1500);
+          continue;
+        }
+        tab.innerHTML=`<div class="card"><h3>❌ 出错了</h3><p>${errTxt}</p><button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
+        return null;
+      }
+      setStatus(2);
+      const data=await resp.json();
+      let content=data.choices[0].message.content;
+      // 如果 content 为空但 reasoning_content 有内容（DeepSeek v4-pro 特性）
+      if(!content && data.choices[0].message.reasoning_content){
+        const rc = data.choices[0].message.reasoning_content;
+        const m = rc.match(/\{[\s\S]*\}/);
+        if(m) content = m[0];
+      }
+      let json=null;
+      try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
+      if(!json){
+        const matches = content.match(/\{[\s\S]*\}/);
+        if(matches) try{json=JSON.parse(matches[0]);}catch(e2){}
+      }
+      if(!json) throw new Error('AI 返回格式异常，请重试');
+      // 统一处理：标准化 JSON 字段
+      if(json.questions){
+        json.questions = json.questions.map((q,i) => {
+          if((q.type||'').includes('选择') && (!q.options || !q.options.length)){
+            q.options = ['A. 选项A','B. 选项B','C. 选项C','D. 选项D'];
+          }
+          return {
+            id: q.id || i+1,
+            type: q.type || '应用题',
+            content: q.content || q.text || q.question || '',
+            options: q.options || [],
+            hint: q.hint || '',
+            answer: q.answer || '',
+            steps: q.steps || []
+          };
+        });
+      }
+      if(json.problems && !json.questions){
+        json.questions = (json.problems||[]).map((p,i) => ({
+          id: i+1, type: '应用题',
+          content: typeof p === 'string' ? p : p.content || p.question || p.text || '',
+          hint: p.hint || '',
+          answer: p.answer || '',
+          steps: p.steps || []
+        }));
+      }
+      // 缓存
+      API_CACHE.set(cacheKey, {data:json, time:Date.now()});
+      // 渲染
+      if(tabId === 'math-analyze' && (!json.questions || !json.questions.length)){
+        renderAnalyzeResult(tabId, json, 'DeepSeek AI');
+      } else {
+        renderResult(tabId,json,'DeepSeek AI');
+      }
+      return json;
+    }catch(e){
+      if(e.name==='AbortError'){
+        lastError = '连接超时（AI 响应太慢）';
+      } else {
+        lastError = e.message;
+      }
+      if(attempt===0) await sleep(1200);
+    }
+  }
+  // 两次都失败
+  tab.innerHTML=`<div class="card"><h3>❌ 请求失败</h3><p>${lastError}</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:4px">💡 DeepSeek 高峰期可能较慢，约 5~15 秒。请稍后重试。</p>
+    <button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
+  return null;
 }
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
 
 function demoReply(messages,tabId,tab){
   const p=DEMO_PROBLEMS[appState.demoIdx%DEMO_PROBLEMS.length];
@@ -714,7 +786,7 @@ function renderGenerate(){
         <select id="genCount" style="flex:1;min-width:60px">
           <option value="1">1 题</option>
           <option value="2">2 题</option>
-          <option value="3" selected>3 题</option>
+          <option value="2" selected>2 题</option>
           <option value="4">4 题</option>
           <option value="5">5 题</option>
         </select>
@@ -800,18 +872,16 @@ function doGenerate(){
   const types = getSelectedTypes();
   if(!g){toast('请选择年级');return;}
   if(!types.length){toast('请至少选择一种题型');return;}
-  let prompt=`请出一道人教版${g}数学题，共 ${c} 道题，题型：${types.join('、')}`;
-  // 选择题必须带选项
-  if(types.includes('选择题')) prompt+=`。注意：选择题必须包含"options"数组，格式如["A. 选项1","B. 选项2","C. 选项3","D. 选项4"]`;
-  if(u) prompt+=`，单元：${u}`;
-  if(k) prompt+=`，知识点：${k}`;
+  let prompt=`人教版${g}数学 ${c}道${types.join('、')}`;
+  if(u) prompt+=` 单元:${u}`;
+  if(k) prompt+=` 知识点:${k}`;
   if(d){
     const stars = '★'.repeat(parseInt(d)) + '☆'.repeat(5-parseInt(d));
     const words = DIFFICULTY_WORD_COUNT[d] || '';
-    prompt+=`，难度：${stars}，阅读量：每题正文约${words}`;
+    prompt+=` 难度:${stars} 阅读量:${words}`;
   }
-  if(b) prompt+=`，背景贴合：${b}`;
-  prompt+='。只输出 JSON。';
+  if(b) prompt+=` 背景:${b}`;
+  prompt+=' 输出JSON';
   callAPI([{role:'system',content:SYSTEM_ANALYZE},{role:'user',content:prompt}],'math-generate');
 }
 function doAnalyze(){
