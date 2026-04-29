@@ -1,23 +1,474 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenTeacher — 智能教研助手</title>
-  <style>
-    body{background:linear-gradient(135deg,#0b1926,#0f2840,#1a3a5c);min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#e2e8f0;text-align:center}
-    .card{background:rgba(255,255,255,.06);backdrop-filter:blur(12px);padding:40px 50px;border-radius:20px;border:1px solid rgba(255,255,255,.1)}
-    h1{font-size:32px;margin:0 0 10px;background:linear-gradient(135deg,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    p{color:#94a3b8;margin:0 0 24px}
-    a{display:inline-block;padding:12px 32px;background:linear-gradient(135deg,#059669,#0ea5e9);color:#fff;border-radius:10px;text-decoration:none;font-weight:600;transition:transform .2s}
-    a:hover{transform:scale(1.05)}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>教研智伴 - AI智能教研平台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e1a;
+  --card-bg:rgba(255,255,255,0.04);
+  --card-border:rgba(255,255,255,0.08);
+  --card-hover-border:rgba(255,255,255,0.2);
+  --text:#e2e8f0;
+  --text-light:#94a3b8;
+  --shadow:0 8px 40px rgba(0,0,0,0.3);
+  --radius:20px;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:radial-gradient(ellipse at 20% 50%,#0f1a2e 0%,#0a0e1a 50%,#0a0e1a 100%);
+}
+/* 背景装饰光晕 */
+.bg-glow{
+  position:fixed;
+  width:600px;height:600px;
+  border-radius:50%;
+  filter:blur(120px);
+  opacity:0.12;
+  pointer-events:none;
+  z-index:0;
+}
+.bg-glow.g1{top:-200px;left:-200px;background:#4a6cf7}
+.bg-glow.g2{bottom:-200px;right:-200px;background:#06b6d4}
+.bg-glow.g3{top:50%;left:50%;transform:translate(-50%,-50%);background:#8b5cf6;width:400px;height:400px;opacity:0.06}
+
+/* Header */
+.header{
+  text-align:center;
+  z-index:1;
+  margin-bottom:48px;
+}
+.header h1{
+  font-size:38px;
+  font-weight:700;
+  background:linear-gradient(135deg,#60a5fa,#34d399,#f59e0b);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-0.5px;
+  margin-bottom:8px;
+}
+.header p{
+  color:var(--text-light);
+  font-size:16px;
+  max-width:420px;
+  line-height:1.6;
+}
+.header .badge{
+  display:inline-block;
+  padding:4px 14px;
+  background:rgba(96,165,250,0.15);
+  border:1px solid rgba(96,165,250,0.25);
+  border-radius:20px;
+  font-size:12px;
+  color:#60a5fa;
+  margin-bottom:16px;
+}
+
+/* Module Cards */
+.modules{
+  display:flex;
+  gap:24px;
+  z-index:1;
+  flex-wrap:wrap;
+  justify-content:center;
+  max-width:900px;
+}
+.module-card{
+  position:relative;
+  width:260px;
+  min-height:280px;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:var(--radius);
+  padding:32px 28px;
+  cursor:pointer;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  overflow:hidden;
+}
+.module-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  border-radius:var(--radius);
+  opacity:0;
+  transition:opacity 0.4s;
+  pointer-events:none;
+}
+.module-card.math::before{background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(52,211,153,0.08))}
+.module-card.english::before{background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(244,114,182,0.08))}
+.module-card.chinese::before{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(251,146,60,0.08))}
+.module-card:hover::before{opacity:1}
+.module-card:hover{
+  transform:translateY(-8px) scale(1.02);
+  border-color:var(--card-hover-border);
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.module-card:active{
+  transform:scale(0.96);
+}
+
+/* 卡片光晕 */
+.module-card .glow{
+  position:absolute;
+  width:200px;height:200px;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:0;
+  transition:opacity 0.5s;
+  pointer-events:none;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+.module-card.math .glow{background:rgba(96,165,250,0.15)}
+.module-card.english .glow{background:rgba(251,146,60,0.15)}
+.module-card.chinese .glow{background:rgba(168,85,247,0.15)}
+.module-card:hover .glow{opacity:1}
+
+/* 图标 */
+.module-card .icon{
+  width:64px;height:64px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  margin-bottom:20px;
+  position:relative;
+  z-index:1;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+.module-card:hover .icon{transform:scale(1.1) rotate(-3deg)}
+.module-card.math .icon{background:linear-gradient(135deg,#1e40af,#3b82f6);box-shadow:0 4px 20px rgba(59,130,246,0.3)}
+.module-card.english .icon{background:linear-gradient(135deg,#92400e,#f59e0b);box-shadow:0 4px 20px rgba(245,158,11,0.3)}
+.module-card.chinese .icon{background:linear-gradient(135deg,#6b21a8,#a855f7);box-shadow:0 4px 20px rgba(168,85,247,0.3)}
+
+.module-card h3{
+  font-size:20px;
+  font-weight:600;
+  margin-bottom:8px;
+  position:relative;
+  z-index:1;
+}
+.module-card p{
+  color:var(--text-light);
+  font-size:14px;
+  line-height:1.6;
+  position:relative;
+  z-index:1;
+  flex:1;
+}
+.module-card .tag{
+  display:inline-block;
+  padding:3px 12px;
+  border-radius:12px;
+  font-size:11px;
+  font-weight:500;
+  margin-top:16px;
+  position:relative;
+  z-index:1;
+}
+.module-card.math .tag{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.2)}
+.module-card.english .tag{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.2)}
+.module-card.chinese .tag{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.2)}
+
+/* 进入箭头 */
+.module-card .arrow{
+  position:absolute;
+  top:20px;right:20px;
+  width:28px;height:28px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  opacity:0;
+  transform:translateX(-8px);
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:2;
+}
+.module-card.math .arrow{background:rgba(59,130,246,0.2);color:#60a5fa}
+.module-card.english .arrow{background:rgba(245,158,11,0.2);color:#fbbf24}
+.module-card.chinese .arrow{background:rgba(168,85,247,0.2);color:#c084fc}
+.module-card:hover .arrow{opacity:1;transform:translateX(0)}
+
+/* 装饰点 */
+.module-card .dots{
+  position:absolute;
+  bottom:12px;right:16px;
+  display:flex;gap:4px;
+  opacity:0.15;
+}
+.module-card .dots span{
+  width:4px;height:4px;
+  border-radius:50%;
+}
+.module-card.math .dots span{background:#60a5fa}
+.module-card.english .dots span{background:#fbbf24}
+.module-card.chinese .dots span{background:#c084fc}
+
+/* 过渡遮罩层 */
+#transitionOverlay{
+  position:fixed;
+  top:0;left:0;
+  width:100vw;height:100vh;
+  z-index:9999;
+  pointer-events:none;
+  clip-path:circle(0% at 50% 50%);
+  transition:none;
+}
+#transitionOverlay.active{
+  transition:clip-path 0.7s cubic-bezier(0.65,0,0.35,1);
+}
+/* Canvas for particles */
+#particleCanvas{
+  position:fixed;
+  top:0;left:0;
+  width:100vw;height:100vh;
+  z-index:9998;
+  pointer-events:none;
+}
+
+/* Footer */
+.footer{
+  margin-top:48px;
+  text-align:center;
+  z-index:1;
+  color:rgba(148,163,184,0.4);
+  font-size:12px;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  body{padding:16px;justify-content:flex-start;padding-top:60px}
+  .header{margin-bottom:32px}
+  .header h1{font-size:28px}
+  .modules{flex-direction:column;align-items:center;width:100%}
+  .module-card{width:100%;max-width:360px;min-height:auto;padding:24px 20px}
+  .module-card .icon{width:52px;height:52px;font-size:24px;margin-bottom:14px}
+  .module-card h3{font-size:18px}
+}
+
+/* 进入动画 */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.module-card{opacity:0;animation:fadeUp 0.6s ease forwards}
+.module-card:nth-child(1){animation-delay:0.1s}
+.module-card:nth-child(2){animation-delay:0.25s}
+.module-card:nth-child(3){animation-delay:0.4s}
+.header{opacity:0;animation:fadeUp 0.6s ease 0s forwards}
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>📐 OpenTeacher</h1>
-    <p>AI 智能教研 · 小学数学出题助手</p>
-    <a href="openteacher.html">✨ 进入应用</a>
+
+<div class="bg-glow g1"></div>
+<div class="bg-glow g2"></div>
+<div class="bg-glow g3"></div>
+
+<canvas id="particleCanvas"></canvas>
+<div id="transitionOverlay"></div>
+
+<div class="header">
+  <div class="badge">✨ AI 智能教研平台</div>
+  <h1>📐 OpenTeacher</h1>
+  <p>基于 DeepSeek AI 的智能教研助手<br>覆盖小学数学 · 英语 · 语文三大模块</p>
+</div>
+
+<div class="modules">
+  <div class="module-card math" data-href="openteacher.html#math-generate" data-color="#3b82f6">
+    <div class="glow"></div>
+    <div class="arrow">→</div>
+    <div class="icon">📐</div>
+    <h3>数学模块</h3>
+    <p>智能出题 · 变式练习 · 解题思路<br>覆盖人教版 1-6 年级全部知识点</p>
+    <span class="tag">📚 12 个年级 · 300+ 知识点</span>
+    <div class="dots"><span></span><span></span><span></span><span></span></div>
   </div>
+  <div class="module-card english" data-href="openteacher.html#english" data-color="#f59e0b">
+    <div class="glow"></div>
+    <div class="arrow">→</div>
+    <div class="icon">🌍</div>
+    <h3>英语模块</h3>
+    <p>语法练习 · 阅读理解 · 词汇训练<br>AI 生成个性化英语学习内容</p>
+    <span class="tag">📝 即将上线</span>
+    <div class="dots"><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="module-card chinese" data-href="openteacher.html#chinese" data-color="#a855f7">
+    <div class="glow"></div>
+    <div class="arrow">→</div>
+    <div class="icon">📖</div>
+    <h3>语文模块</h3>
+    <p>古诗文赏析 · 阅读理解 · 作文指导<br>AI 辅助语文教学与学习</p>
+    <span class="tag">📝 即将上线</span>
+    <div class="dots"><span></span><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<div class="footer">OpenTeacher v2.0 · Powered by DeepSeek AI</div>
+
+<script>
+(function(){
+// 获取卡片和遮罩
+const cards = document.querySelectorAll('.module-card');
+const overlay = document.getElementById('transitionOverlay');
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+
+let animId = null;
+let particles = [];
+let isTransitioning = false;
+
+// Canvas 尺寸
+function resizeCanvas(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// 粒子类
+class Particle{
+  constructor(x, y, color){
+    this.x = x;
+    this.y = y;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 3 + Math.random() * 8;
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.gravity = 0.05 + Math.random() * 0.1;
+    this.life = 1;
+    this.decay = 0.008 + Math.random() * 0.015;
+    this.size = 2 + Math.random() * 4;
+    this.color = color;
+  }
+  update(){
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += this.gravity;
+    this.vx *= 0.99;
+    this.life -= this.decay;
+  }
+  draw(){
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function emitParticles(cx, cy, colors, count){
+  for(let i = 0; i < count; i++){
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particles.push(new Particle(cx, cy, color));
+  }
+}
+
+function animateParticles(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => { p.update(); p.draw(); });
+  if(particles.length > 0 || isTransitioning){
+    animId = requestAnimationFrame(animateParticles);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+// 过渡动画
+function startTransition(card, href){
+  if(isTransitioning) return;
+  isTransitioning = true;
+
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const color = card.dataset.color || '#3b82f6';
+
+  // 设置遮罩颜色
+  overlay.style.background = `radial-gradient(circle at ${cx/ window.innerWidth * 100}% ${cy / window.innerHeight * 100}%, ${color}22, ${color}cc)`;
+
+  // 粒子颜色
+  const colors = [color, '#fff', color + 'aa'];
+
+  // 发出粒子
+  for(let i = 0; i < 4; i++){
+    setTimeout(() => {
+      emitParticles(cx, cy, colors, 20 + Math.random() * 20);
+      if(!animId) animateParticles();
+    }, i * 100);
+  }
+
+  // 卡片缩小淡出
+  card.style.transition = 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)';
+  card.style.transform = 'scale(0.85)';
+  card.style.opacity = '0.3';
+
+  // 其他卡片淡出
+  cards.forEach(c => {
+    if(c !== card){
+      c.style.transition = 'opacity 0.25s ease';
+      c.style.opacity = '0';
+    }
+  });
+
+  // 遮罩展开
+  setTimeout(() => {
+    overlay.style.clipPath = `circle(0% at ${cx}px ${cy}px)`;
+    overlay.classList.add('active');
+    // 强制重排
+    void overlay.offsetWidth;
+    const maxR = Math.hypot(
+      Math.max(cx, window.innerWidth - cx),
+      Math.max(cy, window.innerHeight - cy)
+    );
+    overlay.style.clipPath = `circle(${maxR * 1.5}px at ${cx}px ${cy}px)`;
+  }, 200);
+
+  // 跳转
+  setTimeout(() => {
+    window.location.href = href;
+  }, 900);
+}
+
+// 绑定点击事件
+cards.forEach(card => {
+  card.addEventListener('click', function(e){
+    const href = this.dataset.href;
+    if(href) startTransition(this, href);
+  });
+});
+
+// 页面加载后清理
+window.addEventListener('pageshow', function(){
+  overlay.classList.remove('active');
+  overlay.style.clipPath = 'circle(0% at 50% 50%)';
+  isTransitioning = false;
+  particles = [];
+  if(animId){ cancelAnimationFrame(animId); animId = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+})();
+</script>
 </body>
 </html>
