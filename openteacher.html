@@ -1307,12 +1307,13 @@ function bankSaveEdit(id){
   saveLocalBank(bank);
   st.innerHTML='<span style="color:#059669">✅ 已保存</span>';
   setTimeout(()=>{document.getElementById('bankDetail').style.display='none';bankList(1);bankStats();},600);
+  // 同步到云端
+  setTimeout(()=>syncToGist(true), 1000);
 }
 
 // ---- 删除 ----
 function bankDel(id){
   if(!confirm('确定删除这道题？')) return;
-  const st = getLocalBank();
   const bank = getLocalBank();
   const newBank = bank.filter(q => q.id !== id);
   if(newBank.length === bank.length){ toast('题目不存在'); return; }
@@ -1321,6 +1322,8 @@ function bankDel(id){
   bankList(1);
   bankStats();
   document.getElementById('bankDetail').style.display='none';
+  // 同步到云端，防止刷新后从旧云端拉回已删的题
+  setTimeout(()=>syncToGist(true), 300);
 }
 
 // ---- 添加 ----
@@ -1363,6 +1366,8 @@ function doAdd(){
       const el=document.getElementById(id); if(el) el.value=id==='addDiff'?'★★★':'';
     });
     bankStats();
+    // 同步到云端
+    setTimeout(()=>syncToGist(true), 800);
   } else {
     st.innerHTML='<span style="color:#f59e0b">⚠️ 该题目已存在</span>';
   }
