@@ -5,46 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>OpenTeacher — 智能教研助手</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
-body{background:#f0f4f8;color:#1a1a2e;padding-bottom:80px;min-height:100vh}
-.header{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:16px;text-align:center;position:relative}
-.header h1{font-size:18px;font-weight:600}
-.header p{font-size:12px;opacity:.85;margin-top:2px}
-.tab-bar{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;position:sticky;top:0;z-index:20}
-.tab-btn{flex:1;min-width:64px;padding:10px 4px;font-size:12px;border:0;background:0;color:#94a3b8;cursor:pointer;text-align:center;border-bottom:3px solid transparent;transition:.2s}
-.tab-btn.active{color:#6366f1;border-bottom-color:#6366f1;font-weight:600}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;}
+:root{--bg:#0a0e1a;--card-bg:rgba(255,255,255,0.04);--card-border:rgba(255,255,255,0.08);--card-hover-border:rgba(255,255,255,0.15);--text:#e2e8f0;--text-light:#94a3b8;--text-muted:#64748b;--primary:#3b82f6;--primary-light:#60a5fa;--success:#22c55e;--success-bg:rgba(34,197,94,0.1);--accent:#8b5cf6;--radius:16px;--radius-sm:10px;--shadow:0 8px 40px rgba(0,0,0,0.3)}
+body{background:var(--bg);color:var(--text);padding-bottom:80px;min-height:100vh;background:radial-gradient(ellipse at 20% 50%,#0f1a2e 0%,#0a0e1a 50%,#0a0e1a 100%)}
+.header{background:linear-gradient(135deg,rgba(59,130,246,0.15),rgba(139,92,246,0.1));color:var(--text);padding:16px;text-align:center;position:relative;border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px)}
+.header h1{font-size:18px;font-weight:600;background:linear-gradient(135deg,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header p{font-size:12px;opacity:.7;margin-top:2px;color:var(--text-light)}
+.tab-bar{display:flex;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);overflow-x:auto;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
+.tab-btn{flex:1;min-width:64px;padding:10px 4px;font-size:12px;border:0;background:0;color:var(--text-muted);cursor:pointer;text-align:center;border-bottom:3px solid transparent;transition:.2s}
+.tab-btn.active{color:var(--primary-light);border-bottom-color:var(--primary);font-weight:600}
 .tab-content{display:none;padding:12px;max-width:640px;margin:0 auto}
 .tab-content.active{display:block}
-.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.card h3{font-size:15px;margin-bottom:8px;color:#1e293b}
-.card p{font-size:14px;color:#475569;line-height:1.7}
-.badge{display:inline-block;background:#eef2ff;color:#6366f1;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500}
-.btn{display:block;background:#6366f1;color:#fff;border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.15s;margin-top:10px}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:12px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.card h3{font-size:15px;margin-bottom:8px;color:var(--text)}
+.card p{font-size:14px;color:var(--text-light);line-height:1.7}
+.badge{display:inline-block;background:rgba(59,130,246,0.12);color:var(--primary-light);padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid rgba(59,130,246,0.2)}
+.btn{display:block;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.2s;margin-top:10px;position:relative;overflow:hidden}
 .btn:active{transform:scale(.97);opacity:.85}
-.btn-outline{background:0;border:1.5px solid #6366f1;color:#6366f1}
-.btn-sm{display:inline-block;background:0;border:1px solid #e2e8f0;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;color:#64748b;transition:.15s}
-.btn-sm:active{background:#f1f5f9}
-.btn-print{background:#16a34a;color:#fff;border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.15s;margin-top:10px}
+.btn-outline{background:0;border:1.5px solid var(--primary);color:var(--primary-light)}
+.btn-sm{display:inline-block;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;color:var(--text-light);transition:.15s}
+.btn-sm:active{background:rgba(255,255,255,0.1)}
+.btn-print{background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:0;border-radius:var(--radius-sm);padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.2s;margin-top:10px}
 .btn-print:active{transform:scale(.97);opacity:.85}
-textarea,input,select{width:100%;border:2px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;outline:0;transition:.2s;font-family:inherit}
-textarea:focus,input:focus,select:focus{border-color:#6366f1;background:#fafaff}
+textarea,input,select{width:100%;border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;outline:0;transition:.2s;font-family:inherit;background:rgba(255,255,255,0.05);color:var(--text)}
+textarea:focus,input:focus,select:focus{border-color:var(--primary);background:rgba(59,130,246,0.06)}
+textarea::placeholder,input::placeholder{color:var(--text-muted)}
+select option{background:#0a0e1a;color:var(--text)}
 textarea{resize:vertical;min-height:80px}
-select{appearance:auto;background:#fff;cursor:pointer}
+select{appearance:auto;cursor:pointer}
 .loading-box{text-align:center;padding:24px 16px}
-.loading-box .spinner{display:inline-block;width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
+.loading-box .spinner{display:inline-block;width:28px;height:28px;border:3px solid rgba(255,255,255,0.08);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-box .msg{margin-top:10px;font-size:13px;color:#94a3b8}
-.hint-text{font-size:12px;color:#94a3b8;font-style:italic;margin:4px 0 8px}
-.result-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:10px 0}
-.result-card .q-num{font-size:12px;color:#6366f1;font-weight:600;margin-bottom:4px}
-.result-card .q-body{font-size:15px;line-height:1.8;margin:6px 0}
-.result-card .q-hint{font-size:12px;color:#94a3b8;font-style:italic}
-.result-card .q-answer{margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:14px;color:#166534}
-.result-card .q-steps{margin-top:8px;padding:10px;background:#eef2ff;border-radius:8px;font-size:13px}
-.result-card .q-steps .step{padding:4px 0;border-bottom:1px dashed #e2e8f0}
+.loading-box .msg{margin-top:10px;font-size:13px;color:var(--text-muted)}
+.hint-text{font-size:12px;color:var(--text-muted);font-style:italic;margin:4px 0 8px}
+.result-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin:10px 0}
+.result-card .q-num{font-size:12px;color:var(--primary-light);font-weight:600;margin-bottom:4px}
+.result-card .q-body{font-size:15px;line-height:1.8;margin:6px 0;color:var(--text)}
+.result-card .q-hint{font-size:12px;color:var(--text-muted);font-style:italic}
+.result-card .q-answer{margin-top:8px;padding:10px;background:var(--success-bg);border:1px solid rgba(34,197,94,0.2);border-radius:8px;font-size:14px;color:var(--success)}
+.result-card .q-steps{margin-top:8px;padding:10px;background:rgba(59,130,246,0.06);border-radius:8px;font-size:13px}
+.result-card .q-steps .step{padding:4px 0;border-bottom:1px dashed rgba(255,255,255,0.06)}
 .result-card .q-steps .step:last-child{border:0}
 .meta-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
-.meta-row .tag{background:#f1f5f9;color:#475569;padding:3px 10px;border-radius:20px;font-size:11px}
+.meta-row .tag{background:rgba(255,255,255,0.05);color:var(--text-light);padding:3px 10px;border-radius:20px;font-size:11px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mt-8{margin-top:8px}
 .mb-8{margin-bottom:8px}
@@ -65,26 +68,26 @@ select{appearance:auto;background:#fff;cursor:pointer}
 
 /* 按钮动效 */
 .btn{position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s;}
-.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3);}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,.3);}
 .btn:active{transform:scale(.95)!important;}
-.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .4s,height .4s,opacity .4s;opacity:0;}
+.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.2);transform:translate(-50%,-50%);transition:width .4s,height .4s,opacity .4s;opacity:0;}
 .btn:active::after{width:300px;height:300px;opacity:1;}
 
 .btn-print{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;}
-.btn-print:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,163,74,.3);}
+.btn-print:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,197,94,.3);}
 .btn-print:active{transform:scale(.95)!important;}
 
-textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.1);}
+textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15);}
 .type-chip{transition:all .25s cubic-bezier(.34,1.56,.64,1)!important;}
-.type-chip:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.1);}
+.type-chip:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15);}
 .type-chip:active{transform:scale(.92)!important;}
 .result-card{transition:transform .2s,box-shadow .2s;}
-.result-card:hover{transform:translateX(3px);box-shadow:0 2px 12px rgba(99,102,241,.08);}
+.result-card:hover{transform:translateX(3px);box-shadow:0 2px 12px rgba(59,130,246,.08);}
 .loading-box .spinner{animation:spin .6s cubic-bezier(.68,-.55,.27,1.55) infinite;}
 .loading-box .msg{animation:pulseText 1.5s ease-in-out infinite;}
 @keyframes pulseText{0%,100%{opacity:1;}50%{opacity:.5;}}
 .card{transition:transform .2s,box-shadow .2s;}
-.card:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.08);}
+.card:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.3);}
 
 /* Toast 弹入 */
 @keyframes toastPop{0%{opacity:0;transform:translateX(-50%) scale(.8) translateY(-10px);}60%{transform:translateX(-50%) scale(1.05) translateY(2px);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
@@ -100,11 +103,11 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 .bank-panel{animation:slideDown .25s ease-out both;transform-origin:top center;}
 .bank-panel-hide{animation:slideUp .2s ease-in both;transform-origin:top center;}
 .q-card{animation:popIn .3s ease-out both;transition:transform .2s,box-shadow .2s;}
-.q-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(5,150,105,.15);}
+.q-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(34,197,94,.15);}
 .q-card:active{transform:scale(.98);}
 .bank-detail-card{animation:fadeScaleIn .25s ease-out both;}
 .bank-manage-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1);}
-.bank-manage-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(5,150,105,.3);}
+.bank-manage-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(34,197,94,.3);}
 .bank-manage-btn:active{transform:scale(.95);}
 .bank-stat-num{display:inline-block;animation:fadeScaleIn .35s ease-out;}
 </style>
@@ -114,7 +117,7 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 <div class="toast" id="toast"></div>
 
 <div class="header">
-  <a href="https://zyqby.github.io/openteacher/" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#fff;text-decoration:none;font-size:20px;cursor:pointer" title="返回首页">🏠</a>
+  <a href="https://zyqby.github.io/openteacher/" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);text-decoration:none;font-size:20px;cursor:pointer" title="返回首页">🏠</a>
   <h1>📐 OpenTeacher</h1>
   <p>AI 智能教研 · 小学数学出题助手</p>
 </div>
@@ -458,7 +461,7 @@ function renderAnalyzeResult(tabId, data, mode){
   html+=`</div>`;
   
   // 知识点
-  if(data.knowledge_point) html+=`<p style="font-size:13px;color:#6366f1;margin-bottom:10px">📌 知识点：${data.knowledge_point}</p>`;
+  if(data.knowledge_point) html+=`<p style="font-size:13px;color:var(--primary-light);margin-bottom:10px">📌 知识点：${data.knowledge_point}</p>`;
   
   // 结构分析
   if(data.original_analysis){
@@ -487,7 +490,7 @@ function renderAnalyzeResult(tabId, data, mode){
   
   // 如果只有文字描述
   if(data.description || data.analysis){
-    html+=`<div style="padding:10px;background:#f8fafc;border-radius:8px;font-size:14px;line-height:1.8">${(data.description||data.analysis||'').replace(/\n/g,'<br>')}</div>`;
+    html+=`<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:14px;line-height:1.8">${(data.description||data.analysis||'').replace(/\n/g,'<br>')}</div>`;
   }
   
   html+=`<div style="display:flex;gap:8px;margin-top:10px">
@@ -507,7 +510,7 @@ function renderResult(tabId,data,mode){
   appState.lastPrintMode = mode;
 
   let html=`<div class="card"><div class="meta-row"><span class="badge">${mode||'AI 生成'}</span><span class="tag">${data.grade||'?'}</span><span class="tag">${data.unit||'?'}</span><span class="tag">${data.difficulty||'?'}</span></div>`;
-  if(data.knowledge_point) html+=`<p style="font-size:12px;color:#94a3b8;margin-bottom:8px">📌 知识点：${data.knowledge_point}</p>`;
+  if(data.knowledge_point) html+=`<p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">📌 知识点：${data.knowledge_point}</p>`;
   if(data.original_analysis){
     const o=data.original_analysis;
     html+=`<div style="padding:8px 10px;background:#f0f9ff;border-radius:8px;margin-bottom:10px;font-size:12px;color:#0369a1"><strong>原题分析：</strong> ${o.grade||''} · ${o.unit||''} · ${o.knowledge_point||''} · 结构：${o.structure||''}</div>`;
@@ -596,7 +599,7 @@ function autoImport(data){
   } else if(skipped>0){
     el.innerHTML=`<span style="color:#f59e0b">⚠️ 已有 ${skipped} 道重复题，未重复入库</span>`;
   } else {
-    el.innerHTML=`<span style="color:#94a3b8">ℹ️ 没有新题需要入库</span>`;
+    el.innerHTML=`<span style="color:var(--text-muted)">ℹ️ 没有新题需要入库</span>`;
   }
 }
 
@@ -624,9 +627,9 @@ function regenerate(tabId){
           document.querySelectorAll('#genTypes .type-chip').forEach(el => {
             const shouldSelect = inputs._types.includes(el.dataset.type);
             el.classList.toggle('selected', shouldSelect);
-            el.style.borderColor = shouldSelect ? '#6366f1' : '#e2e8f0';
-            el.style.background = shouldSelect ? '#eef2ff' : '#fff';
-            el.style.color = shouldSelect ? '#6366f1' : '#64748b';
+            el.style.borderColor = shouldSelect ? 'var(--primary)' : 'rgba(255,255,255,0.12)';
+            el.style.background = shouldSelect ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.05)';
+            el.style.color = shouldSelect ? 'var(--primary-light)' : 'var(--text-light)';
           });
         }
         doGenerate();
@@ -702,12 +705,12 @@ function renderGenerate(){
           <option value="1">★☆☆☆☆（易）</option><option value="2">★★☆☆☆</option><option value="3">★★★☆☆（中）</option><option value="4">★★★★☆</option><option value="5">★★★★★（难）</option>
         </select>
       </div>
-      <div id="readabilityHint" style="font-size:12px;color:#94a3b8;margin:6px 0 0;text-align:center"></div>
+      <div id="readabilityHint" style="font-size:12px;color:var(--text-muted);margin:6px 0 0;text-align:center"></div>
       <select id="genUnit" onchange="loadKnowledge()" class="mt-8"><option value="">先选择年级</option></select>
       <select id="genKnowledge" class="mt-8"><option value="">先选择单元</option></select>
       <textarea id="genBackground" placeholder="🎯 时政背景（可选）如：杭州亚运会、神舟十九号、嫦娥六号" class="mt-8"></textarea>
       <div class="mt-8" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <label style="font-size:13px;color:#475569;white-space:nowrap">📝 出题数：</label>
+        <label style="font-size:13px;color:var(--text-light);white-space:nowrap">📝 出题数：</label>
         <select id="genCount" style="flex:1;min-width:60px">
           <option value="1">1 题</option>
           <option value="2">2 题</option>
@@ -717,12 +720,12 @@ function renderGenerate(){
         </select>
       </div>
       <div class="mt-8" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <label style="font-size:13px;color:#475569;white-space:nowrap">📋 题型：</label>
+        <label style="font-size:13px;color:var(--text-light);white-space:nowrap">📋 题型：</label>
         <div id="genTypes" style="display:flex;gap:6px;flex-wrap:wrap">
-          <label class="type-chip selected" data-type="应用题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #6366f1;background:#eef2ff;color:#6366f1;transition:.15s" onclick="toggleType(this)">📝 应用题</label>
-          <label class="type-chip" data-type="选择题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">⭕ 选择题</label>
-          <label class="type-chip" data-type="填空题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">✏️ 填空题</label>
-          <label class="type-chip" data-type="计算题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">🧮 计算题</label>
+          <label class="type-chip selected" data-type="应用题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid var(--primary);background:rgba(59,130,246,0.15);color:var(--primary-light);transition:.15s" onclick="toggleType(this)">📝 应用题</label>
+          <label class="type-chip" data-type="选择题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--text-light);transition:.15s" onclick="toggleType(this)">⭕ 选择题</label>
+          <label class="type-chip" data-type="填空题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--text-light);transition:.15s" onclick="toggleType(this)">✏️ 填空题</label>
+          <label class="type-chip" data-type="计算题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.05);color:var(--text-light);transition:.15s" onclick="toggleType(this)">🧮 计算题</label>
         </div>
       </div>
       <button class="btn" onclick="doGenerate()">开始出题</button>
@@ -775,14 +778,14 @@ function updateReadabilityHint(){
 function toggleType(el){
   document.querySelectorAll('#genTypes .type-chip').forEach(other => {
     other.classList.remove('selected');
-    other.style.borderColor = '#e2e8f0';
-    other.style.background = '#fff';
-    other.style.color = '#64748b';
+    other.style.borderColor = 'rgba(255,255,255,0.12)';
+    other.style.background = 'rgba(255,255,255,0.05)';
+    other.style.color = 'var(--text-light)';
   });
   el.classList.add('selected');
-  el.style.borderColor = '#6366f1';
-  el.style.background = '#eef2ff';
-  el.style.color = '#6366f1';
+  el.style.borderColor = 'var(--primary)';
+  el.style.background = 'rgba(59,130,246,0.15)';
+  el.style.color = 'var(--primary-light)';
 }
 function getSelectedTypes(){
   return Array.from(document.querySelectorAll('#genTypes .type-chip.selected')).map(el => el.dataset.type);
@@ -835,16 +838,16 @@ function renderBank(){
       <button class="btn btn-outline bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px;border-color:#0ea5e9;color:#0ea5e9" onclick="syncToGist(false)">☁️ 上传到云端</button>
       <button class="btn btn-outline bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px;border-color:#0ea5e9;color:#0ea5e9" onclick="syncFromGist(false)">📥 从云端下载</button>
     </div>
-    <div id="syncStatus" style="font-size:12px;color:#94a3b8;text-align:center;margin-bottom:8px"></div>
+    <div id="syncStatus" style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:8px"></div>
 
     <div class="card" style="overflow:hidden">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
         <div style="width:48px;height:48px;background:#ecfdf5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">📚</div>
         <div style="flex:1">
           <h3 style="margin:0;font-size:17px">题库浏览</h3>
-          <p style="font-size:12px;color:#94a3b8;margin:2px 0 0" id="bankSummary">正在加载…</p>
+          <p style="font-size:12px;color:var(--text-muted);margin:2px 0 0" id="bankSummary">正在加载…</p>
         </div>
-        <button class="btn-sm" onclick="bankRandom()" style="font-size:13px;padding:6px 16px;background:#059669;color:#fff;border:0;border-radius:10px">🎲 随机</button>
+        <button class="btn-sm" onclick="bankRandom()" style="font-size:13px;padding:6px 16px;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:0;border-radius:10px">🎲 随机</button>
       </div>
       <div class="grid-2" style="margin-bottom:8px">
         <select id="bankGrade" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有年级</option></select>
@@ -855,7 +858,7 @@ function renderBank(){
         <select id="bankTopic" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有背景</option></select>
       </div>
     </div>
-    <div id="bankList" style="text-align:center;padding:20px;color:#94a3b8">正在加载…</div>
+    <div id="bankList" style="text-align:center;padding:20px;color:var(--text-muted)">正在加载…</div>
     <div id="bankDetail" style="display:none"></div>
 
     <!-- 添加面板（默认隐藏） -->
@@ -863,27 +866,27 @@ function renderBank(){
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <h3 style="margin:0;font-size:17px;color:#059669">➕ 添加题目</h3>
-          <button onclick="hideAddPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+          <button onclick="hideAddPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:var(--text-muted)">✕</button>
         </div>
         <div class="grid-2" style="margin-bottom:8px">
-          <select id="addGrade" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0"><option value="">选择年级</option></select>
-          <input id="addUnit" placeholder="单元，如：上册·倍的认识" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+          <select id="addGrade" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)"><option value="">选择年级</option></select>
+          <input id="addUnit" placeholder="单元，如：上册·倍的认识" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">
         </div>
         <div class="grid-2" style="margin-bottom:8px">
-          <input id="addType" placeholder="题型，如：应用题" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
-          <input id="addDiff" placeholder="难度（★★★★）" value="★★★" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+          <input id="addType" placeholder="题型，如：应用题" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">
+          <input id="addDiff" placeholder="难度（★★★★）" value="★★★" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">
         </div>
         <div class="grid-2" style="margin-bottom:8px">
-          <input id="addKnowledge" placeholder="知识点（可选）" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
-          <input id="addBg" placeholder="时政背景（可选）" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+          <input id="addKnowledge" placeholder="知识点（可选）" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">
+          <input id="addBg" placeholder="时政背景（可选）" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">
         </div>
-        <textarea id="addQuestion" placeholder="题目内容" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:0;resize:vertical;margin-bottom:8px"></textarea>
-        <textarea id="addAnswer" placeholder="答案+解析" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:0;resize:vertical;margin-bottom:10px"></textarea>
+        <textarea id="addQuestion" placeholder="题目内容" style="width:100%;min-height:60px;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);font-size:14px;outline:0;resize:vertical;margin-bottom:8px"></textarea>
+        <textarea id="addAnswer" placeholder="答案+解析" style="width:100%;min-height:60px;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);font-size:14px;outline:0;resize:vertical;margin-bottom:10px"></textarea>
         <div style="display:flex;gap:8px">
           <button class="btn" style="flex:1;margin:0" onclick="doAdd()">✅ 添加到题库</button>
           <button class="btn btn-outline" style="flex:1;margin:0" onclick="resetAddForm()">清空</button>
         </div>
-        <div id="addStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div>
+        <div id="addStatus" style="font-size:12px;margin-top:6px;color:var(--text-muted)"></div>
       </div>
     </div>
 
@@ -892,14 +895,14 @@ function renderBank(){
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
           <h3 style="margin:0;font-size:17px;color:#059669">📋 批量导入</h3>
-          <button onclick="hideBatchPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+          <button onclick="hideBatchPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:var(--text-muted)">✕</button>
         </div>
-        <p style="font-size:12px;color:#94a3b8;margin-bottom:8px">粘贴 JSON 数组，每道题包含：grade, unit, question, answer</p>
-        <textarea id="batchInput" style="width:100%;min-height:150px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-family:monospace;outline:0;resize:vertical" placeholder='[
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px">粘贴 JSON 数组，每道题包含：grade, unit, question, answer</p>
+        <textarea id="batchInput" style="width:100%;min-height:150px;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);font-size:12px;font-family:monospace;outline:0;resize:vertical" placeholder='[
   {"grade":"三年级","unit":"上册·倍的认识","question":"...","answer":"..."}
 ]'></textarea>
         <button class="btn" style="margin-top:8px" onclick="doBatch()">📥 批量导入</button>
-        <div id="batchStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div>
+        <div id="batchStatus" style="font-size:12px;margin-top:6px;color:var(--text-muted)"></div>
       </div>
     </div>
   `;
@@ -1088,21 +1091,21 @@ function bankList(page){
   const pageItems = items.slice(offset, offset + limit);
 
   if(!pageItems.length){
-    el.innerHTML='<div class="card" style="text-align:center;color:#94a3b8;padding:30px">📭 没有匹配的题目</div>';
+    el.innerHTML='<div class="card" style="text-align:center;color:var(--text-muted);padding:30px">📭 没有匹配的题目</div>';
     return;
   }
 
   let html='<div class="q-list">';
   pageItems.forEach(q=>{
-    const stars = q.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:#e2e8f0">☆</span>');
-    html+='<div class="q-card" style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border-left:4px solid #059669;margin-bottom:6px;position:relative">'
+    const stars = q.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:rgba(255,255,255,0.2)">☆</span>');
+    html+='<div class="q-card" style="background:var(--card-bg);border-radius:12px;padding:12px 14px;border:1px solid var(--card-border);border-left:4px solid #22c55e;margin-bottom:6px;position:relative">'
       +'<button style="position:absolute;top:8px;right:8px;background:0;border:0;color:#fca5a5;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1" onclick="event.stopPropagation();bankDel('+q.id+')" title="删除">✕</button>'
-      +'<button style="position:absolute;top:8px;right:32px;background:0;border:0;color:#94a3b8;font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1" onclick="event.stopPropagation();bankEdit('+q.id+')" title="编辑">✎</button>'
+      +'<button style="position:absolute;top:8px;right:32px;background:0;border:0;color:var(--text-muted);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1" onclick="event.stopPropagation();bankEdit('+q.id+')" title="编辑">✎</button>'
       +'<div onclick="bankGet('+q.id+')" style="cursor:pointer">'
       +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;padding-right:40px">'
       +'<span style="background:#ecfdf5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px">'+q.grade+'</span>'
-      +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+q.unit+'</span>'
-      +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+(q.type||'')+'</span>'
+      +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+q.unit+'</span>'
+      +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+(q.type||'')+'</span>'
       +'<span style="font-size:11px;margin-left:auto">'+stars+'</span>'
       +'</div>'
       +'<div style="font-size:13px;color:#334155;line-height:1.6">'+q.question.substring(0,60)+'...</div>'
@@ -1113,7 +1116,7 @@ function bankList(page){
   if(pages>1){
     html+='<div style="display:flex;gap:4px;justify-content:center;padding:10px 0;flex-wrap:wrap">';
     for(let i=1;i<=pages;i++){
-      html+='<button style="background:'+(i===page?'#059669':'#fff')+';color:'+(i===page?'#fff':'#475569')+';border:1px solid '+(i===page?'#059669':'#e2e8f0')+';border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer" onclick="bankList('+i+')">'+i+'</button>';
+      html+='<button style="background:'+(i===page?'#059669':'rgba(255,255,255,0.05)')+';color:'+(i===page?'#fff':'var(--text-light)')+';border:1px solid '+(i===page?'#059669':'var(--card-border)')+';border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer" onclick="bankList('+i+')">'+i+'</button>';
     }
     html+='</div>';
   }
@@ -1127,22 +1130,22 @@ function bankGet(id){
   const d = getLocalBank().find(q => q.id === id);
   if(!d){ el.innerHTML='<p style="color:#ef4444">题目不存在</p>'; return; }
 
-  const stars = d.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:#e2e8f0">☆</span>');
+  const stars = d.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:rgba(255,255,255,0.2)">☆</span>');
   el.innerHTML='<div class="card bank-detail-card" style="background:#f0fdf4;border:2px solid #059669">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     +'<h3 style="font-size:16px;color:#059669">📝 第 #'+d.id+' 题</h3>'
-    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:#94a3b8">✕</button>'
+    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>'
     +'</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'
     +'<span style="background:#ecfdf5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px">'+d.grade+'</span>'
-    +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+d.unit+'</span>'
-    +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+(d.type||'')+'</span>'
+    +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+d.unit+'</span>'
+    +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+(d.type||'')+'</span>'
     +'<span style="font-size:12px">'+stars+'</span>'
     +'</div>'
-    +'<p style="font-size:13px;color:#6366f1;margin-bottom:6px"><strong>📌 '+(d.knowledge||'')+'</strong></p>'
+    +'<p style="font-size:13px;color:var(--primary-light);margin-bottom:6px"><strong>📌 '+(d.knowledge||'')+'</strong></p>'
     +(d.background?'<p style="font-size:12px;color:#059669">🏷️ 背景：'+d.background+'</p>':'')
-    +(d.news_bg?'<p style="font-size:11px;color:#94a3b8">📰 '+d.news_bg+'</p>':'')
-    +'<div style="background:#f8fafc;border-radius:12px;padding:16px;font-size:15px;line-height:1.8;margin:10px 0">'+d.question+'</div>'
+    +(d.news_bg?'<p style="font-size:11px;color:var(--text-muted)">📰 '+d.news_bg+'</p>':'')
+    +'<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:16px;font-size:15px;line-height:1.8;margin:10px 0">'+d.question+'</div>'
     +'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;font-size:14px;color:#166534;line-height:1.7">'
     +'<strong>✅ 答案 & 解析</strong><br>'+d.answer.replace(/\n/g,'<br>')+'</div>'
     +'<div style="display:flex;gap:8px;margin-top:14px">'
@@ -1161,27 +1164,27 @@ function bankEdit(id){
   el.innerHTML='<div class="card" style="background:#f0fdf4;border:2px solid #059669">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
     +'<h3 style="font-size:16px;color:#059669">✎ 编辑 #'+d.id+'</h3>'
-    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:#94a3b8">✕</button>'
+    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:var(--text-muted)">✕</button>'
     +'</div>'
     +'<div class="grid-2" style="margin-bottom:8px">'
-    +'<select id="editGrade" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'<select id="editGrade" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">'
     +'  <option value="">年级</option>'
     +'  <option value="一年级">一年级</option><option value="二年级">二年级</option><option value="三年级">三年级</option>'
     +'  <option value="四年级">四年级</option><option value="五年级">五年级</option><option value="六年级">六年级</option>'
     +'</select>'
-    +'<input id="editUnit" value="'+d.unit+'" placeholder="单元" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'<input id="editUnit" value="'+d.unit+'" placeholder="单元" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">'
     +'</div>'
     +'<div class="grid-2" style="margin-bottom:8px">'
-    +'<input id="editType" value="'+(d.type||'')+'" placeholder="题型" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
-    +'<input id="editDiff" value="'+d.difficulty+'" placeholder="难度" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'<input id="editType" value="'+(d.type||'')+'" placeholder="题型" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">'
+    +'<input id="editDiff" value="'+d.difficulty+'" placeholder="难度" style="font-size:13px;padding:8px 10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);outline:0;background:rgba(255,255,255,0.05);color:var(--text)">'
     +'</div>'
-    +'<textarea id="editQuestion" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.question+'</textarea>'
-    +'<textarea id="editAnswer" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.answer+'</textarea>'
+    +'<textarea id="editQuestion" style="width:100%;min-height:60px;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.question+'</textarea>'
+    +'<textarea id="editAnswer" style="width:100%;min-height:60px;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-sm);font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.answer+'</textarea>'
     +'<div style="display:flex;gap:8px">'
     +'<button class="btn" style="flex:1;margin:0" onclick="bankSaveEdit('+d.id+')">💾 保存修改</button>'
     +'<button class="btn btn-outline" style="flex:1;margin:0" onclick="document.getElementById(\'bankDetail\').style.display=\'none\'">取消</button>'
     +'</div>'
-    +'<div id="editStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div></div>';
+    +'<div id="editStatus" style="font-size:12px;margin-top:6px;color:var(--text-muted)"></div></div>';
   document.getElementById('editGrade').value = d.grade;
 }
 

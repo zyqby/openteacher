@@ -115,6 +115,7 @@ body{
 .module-card.math::before{background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(52,211,153,0.08))}
 .module-card.english::before{background:linear-gradient(135deg,rgba(251,146,60,0.08),rgba(244,114,182,0.08))}
 .module-card.chinese::before{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(251,146,60,0.08))}
+.module-card.bank::before{background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(59,130,246,0.08))}
 .module-card:hover::before{opacity:1}
 .module-card:hover{
   transform:translateY(-8px) scale(1.02);
@@ -139,6 +140,7 @@ body{
 .module-card.math .glow{background:rgba(96,165,250,0.15)}
 .module-card.english .glow{background:rgba(251,146,60,0.15)}
 .module-card.chinese .glow{background:rgba(168,85,247,0.15)}
+.module-card.bank .glow{background:rgba(34,197,94,0.15)}
 .module-card:hover .glow{opacity:1}
 
 /* 图标 */
@@ -158,6 +160,7 @@ body{
 .module-card.math .icon{background:linear-gradient(135deg,#1e40af,#3b82f6);box-shadow:0 4px 20px rgba(59,130,246,0.3)}
 .module-card.english .icon{background:linear-gradient(135deg,#92400e,#f59e0b);box-shadow:0 4px 20px rgba(245,158,11,0.3)}
 .module-card.chinese .icon{background:linear-gradient(135deg,#6b21a8,#a855f7);box-shadow:0 4px 20px rgba(168,85,247,0.3)}
+.module-card.bank .icon{background:linear-gradient(135deg,#065f46,#10b981);box-shadow:0 4px 20px rgba(16,185,129,0.3)}
 
 .module-card h3{
   font-size:20px;
@@ -187,6 +190,7 @@ body{
 .module-card.math .tag{background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.2)}
 .module-card.english .tag{background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.2)}
 .module-card.chinese .tag{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.2)}
+.module-card.bank .tag{background:rgba(16,185,129,0.15);color:#34d399;border:1px solid rgba(16,185,129,0.2)}
 
 /* 进入箭头 */
 .module-card .arrow{
@@ -206,6 +210,7 @@ body{
 .module-card.math .arrow{background:rgba(59,130,246,0.2);color:#60a5fa}
 .module-card.english .arrow{background:rgba(245,158,11,0.2);color:#fbbf24}
 .module-card.chinese .arrow{background:rgba(168,85,247,0.2);color:#c084fc}
+.module-card.bank .arrow{background:rgba(16,185,129,0.2);color:#34d399}
 .module-card:hover .arrow{opacity:1;transform:translateX(0)}
 
 /* 装饰点 */
@@ -222,6 +227,7 @@ body{
 .module-card.math .dots span{background:#60a5fa}
 .module-card.english .dots span{background:#fbbf24}
 .module-card.chinese .dots span{background:#c084fc}
+.module-card.bank .dots span{background:#34d399}
 
 /* 过渡遮罩层 */
 #transitionOverlay{
@@ -272,8 +278,9 @@ body{
 }
 .module-card{opacity:0;animation:fadeUp 0.6s ease forwards}
 .module-card:nth-child(1){animation-delay:0.1s}
-.module-card:nth-child(2){animation-delay:0.25s}
-.module-card:nth-child(3){animation-delay:0.4s}
+.module-card:nth-child(2){animation-delay:0.2s}
+.module-card:nth-child(3){animation-delay:0.3s}
+.module-card:nth-child(4){animation-delay:0.4s}
 .header{opacity:0;animation:fadeUp 0.6s ease 0s forwards}
 </style>
 </head>
@@ -289,7 +296,7 @@ body{
 <div class="header">
   <div class="badge">✨ AI 智能教研平台</div>
   <h1>📐 OpenTeacher</h1>
-  <p>基于 DeepSeek AI 的智能教研助手<br>覆盖小学数学 · 英语 · 语文三大模块</p>
+  <p>基于 DeepSeek AI 的智能教研助手<br>覆盖数学 · 题库 · 英语 · 语文四大模块</p>
 </div>
 
 <div class="modules">
@@ -300,6 +307,15 @@ body{
     <h3>数学模块</h3>
     <p>智能出题 · 变式练习 · 解题思路<br>覆盖人教版 1-6 年级全部知识点</p>
     <span class="tag">📚 12 个年级 · 300+ 知识点</span>
+    <div class="dots"><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="module-card bank" data-href="openteacher.html#bank" data-color="#10b981">
+    <div class="glow"></div>
+    <div class="arrow">→</div>
+    <div class="icon">📖</div>
+    <h3>题库模块</h3>
+    <p>题库浏览 · 云端同步 · 批量管理<br>浏览全部题目，一键上传下载</p>
+    <span class="tag">📦 本地 + 云端同步</span>
     <div class="dots"><span></span><span></span><span></span><span></span></div>
   </div>
   <div class="module-card english" data-href="openteacher.html#english" data-color="#f59e0b">
