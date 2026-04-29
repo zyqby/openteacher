@@ -318,27 +318,27 @@ body{
     <span class="tag">📦 本地 + 云端同步</span>
     <div class="dots"><span></span><span></span><span></span><span></span></div>
   </div>
-  <div class="module-card english" data-href="openteacher.html#english" data-color="#f59e0b">
+  <div class="module-card english" data-color="#f59e0b">
     <div class="glow"></div>
     <div class="arrow">→</div>
     <div class="icon">🌍</div>
     <h3>英语模块</h3>
     <p>语法练习 · 阅读理解 · 词汇训练<br>AI 生成个性化英语学习内容</p>
-    <span class="tag">📝 即将上线</span>
+    <span class="tag">🧪 测试版 · 不代表最终成品</span>
     <div class="dots"><span></span><span></span><span></span><span></span></div>
   </div>
-  <div class="module-card chinese" data-href="openteacher.html#chinese" data-color="#a855f7">
+  <div class="module-card chinese" data-color="#a855f7">
     <div class="glow"></div>
     <div class="arrow">→</div>
     <div class="icon">📖</div>
     <h3>语文模块</h3>
     <p>古诗文赏析 · 阅读理解 · 作文指导<br>AI 辅助语文教学与学习</p>
-    <span class="tag">📝 即将上线</span>
+    <span class="tag">🧪 测试版 · 不代表最终成品</span>
     <div class="dots"><span></span><span></span><span></span><span></span></div>
   </div>
 </div>
 
-<div class="footer">OpenTeacher v2.0 · Powered by DeepSeek AI</div>
+<div class="footer">🧪 测试版 · 不代表最终成品 · Powered by DeepSeek AI</div>
 
 <script>
 (function(){
@@ -471,7 +471,26 @@ function startTransition(card, href){
 cards.forEach(card => {
   card.addEventListener('click', function(e){
     const href = this.dataset.href;
-    if(href) startTransition(this, href);
+    if(href) {
+      startTransition(this, href);
+    } else {
+      // 未开发完成的模块弹提示
+      const toast = document.createElement('div');
+      toast.textContent = '🔧 功能开发中，敬请期待';
+      Object.assign(toast.style, {
+        position:'fixed', top:'20px', left:'50%', transform:'translateX(-50%)',
+        background:'rgba(245,158,11,0.9)', color:'#fff', padding:'10px 24px',
+        borderRadius:'12px', fontSize:'14px', fontWeight:'500',
+        zIndex:'10000', opacity:'0', transition:'opacity 0.3s',
+        backdropFilter:'blur(8px)', boxShadow:'0 4px 20px rgba(0,0,0,0.3)'
+      });
+      document.body.appendChild(toast);
+      requestAnimationFrame(() => toast.style.opacity = '1');
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
   });
 });
 
