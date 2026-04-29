@@ -307,16 +307,28 @@ async function callAPIRaw(messages, modelName){
     const resp=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.3,max_tokens:2048}),
+      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0,max_tokens:1024}),
       signal:controller.signal
     });
     clearTimeout(timer);
     if(!resp.ok){ toast('请求失败 ('+resp.status+')'); return null; }
     const data=await resp.json();
     let content=data.choices[0].message.content;
-    if(!content && data.choices[0].message.reasoning_content){
-      const m=data.choices[0].message.reasoning_content.match(/\{[\s\S]*\}/);
-      if(m) content=m[0];
+    const rc=data.choices[0].message.reasoning_content;
+    // 处理 content 为空/截断 + reasoning 乱码
+    if(!content || content.trim().length<30){
+      if(rc){
+        // 从 reasoning 中提取完整 JSON
+        const m=rc.match(/\{[\s\S]*"questions"[\s\S]*\}/);
+        if(m) content=m[0];
+      }
+      // 如果还不行，尝试修复截断的 JSON
+      if(!content || content.trim().length<30){
+        content = content || rc || '';
+        // 补全不完整的 JSON（缺少末尾括号）
+        content = content.replace(/,\s*"steps":\s*\[[^\]]*\]?\s*\}?\s*$/,'}]}}');
+        content = content.replace(/,\s*"steps":\s*\[[^\]]*\]?\s*\}?\s*\}?\s*$/,'}]}}');
+      }
     }
     let json=null;
     try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
@@ -388,7 +400,7 @@ async function callAPIWithModel(model, messages, tabId){
       const resp=await fetch('https://api.deepseek.com/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-        body:JSON.stringify({model:model,messages,stream:false,temperature:0.3,max_tokens:2048}),
+        body:JSON.stringify({model:model,messages,stream:false,temperature:0,max_tokens:1024}),
         signal:controller.signal
       });
       clearTimeout(timer);
@@ -406,11 +418,21 @@ async function callAPIWithModel(model, messages, tabId){
       setStatus(2);
       const data=await resp.json();
       let content=data.choices[0].message.content;
-      // 如果 content 为空但 reasoning_content 有内容（DeepSeek v4-pro 特性）
-      if(!content && data.choices[0].message.reasoning_content){
-        const rc = data.choices[0].message.reasoning_content;
-        const m = rc.match(/\{[\s\S]*\}/);
-        if(m) content = m[0];
+      const rc=data.choices[0].message.reasoning_content;
+      // 处理 content 为空/截断 + reasoning 乱码（DeepSeek v4-pro 特性）
+      if(!content || content.trim().length<30){
+        if(rc){
+          // 从 reasoning 中提取包含 questions 的完整 JSON
+          const m=rc.match(/\{[\s\S]*"questions"[\s\S]*\}/);
+          if(m) content=m[0];
+        }
+        // 如果还不行，尝试修复截断的 JSON
+        if(!content || content.trim().length<30){
+          content = content || rc || '';
+          // 补全不完整的 JSON（缺末尾括号）
+          content = content.replace(/,\s*"steps":\s*\[[^\]]*\]?\s*\}?\s*$/,'}]}}');
+          content = content.replace(/,\s*"steps":\s*\[[^\]]*\]?\s*\}?\s*\}?\s*$/,'}]}}');
+        }
       }
       let json=null;
       try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
