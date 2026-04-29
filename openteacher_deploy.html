@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OpenTeacher — 智能教研助手</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+body{background:#f0f4f8;color:#1a1a2e;padding-bottom:80px;min-height:100vh}
+.header{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:16px;text-align:center;position:relative}
+.header h1{font-size:18px;font-weight:600}
+.header p{font-size:12px;opacity:.85;margin-top:2px}
+.tab-bar{display:flex;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;position:sticky;top:0;z-index:20}
+.tab-btn{flex:1;min-width:64px;padding:10px 4px;font-size:12px;border:0;background:0;color:#94a3b8;cursor:pointer;text-align:center;border-bottom:3px solid transparent;transition:.2s}
+.tab-btn.active{color:#6366f1;border-bottom-color:#6366f1;font-weight:600}
+.tab-content{display:none;padding:12px;max-width:640px;margin:0 auto}
+.tab-content.active{display:block}
+.card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h3{font-size:15px;margin-bottom:8px;color:#1e293b}
+.card p{font-size:14px;color:#475569;line-height:1.7}
+.badge{display:inline-block;background:#eef2ff;color:#6366f1;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.btn{display:block;background:#6366f1;color:#fff;border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.15s;margin-top:10px}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-outline{background:0;border:1.5px solid #6366f1;color:#6366f1}
+.btn-sm{display:inline-block;background:0;border:1px solid #e2e8f0;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;color:#64748b;transition:.15s}
+.btn-sm:active{background:#f1f5f9}
+.btn-print{background:#16a34a;color:#fff;border:0;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;width:100%;text-align:center;transition:.15s;margin-top:10px}
+.btn-print:active{transform:scale(.97);opacity:.85}
+textarea,input,select{width:100%;border:2px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;outline:0;transition:.2s;font-family:inherit}
+textarea:focus,input:focus,select:focus{border-color:#6366f1;background:#fafaff}
+textarea{resize:vertical;min-height:80px}
+select{appearance:auto;background:#fff;cursor:pointer}
+.loading-box{text-align:center;padding:24px 16px}
+.loading-box .spinner{display:inline-block;width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box .msg{margin-top:10px;font-size:13px;color:#94a3b8}
+.hint-text{font-size:12px;color:#94a3b8;font-style:italic;margin:4px 0 8px}
+.result-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin:10px 0}
+.result-card .q-num{font-size:12px;color:#6366f1;font-weight:600;margin-bottom:4px}
+.result-card .q-body{font-size:15px;line-height:1.8;margin:6px 0}
+.result-card .q-hint{font-size:12px;color:#94a3b8;font-style:italic}
+.result-card .q-answer{margin-top:8px;padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:14px;color:#166534}
+.result-card .q-steps{margin-top:8px;padding:10px;background:#eef2ff;border-radius:8px;font-size:13px}
+.result-card .q-steps .step{padding:4px 0;border-bottom:1px dashed #e2e8f0}
+.result-card .q-steps .step:last-child{border:0}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px}
+.meta-row .tag{background:#f1f5f9;color:#475569;padding:3px 10px;border-radius:20px;font-size:11px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mt-8{margin-top:8px}
+.mb-8{margin-bottom:8px}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%}
+.toast.show{opacity:1}
+
+/* Tab 切换动效 */
+@keyframes tabSlideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.tab-content.active{animation:tabSlideIn .3s ease-out;}
+
+/* 卡片入场 */
+@keyframes cardBounceIn{0%{opacity:0;transform:translateY(20px) scale(.97);}60%{transform:translateY(-3px) scale(1.01);}100%{opacity:1;transform:translateY(0) scale(1);}}
+.result-card{animation:cardBounceIn .35s ease-out both;}
+.result-card:nth-child(2){animation-delay:.08s;}
+.result-card:nth-child(3){animation-delay:.16s;}
+.result-card:nth-child(4){animation-delay:.24s;}
+.result-card:nth-child(5){animation-delay:.32s;}
+
+/* 按钮动效 */
+.btn{position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(99,102,241,.3);}
+.btn:active{transform:scale(.95)!important;}
+.btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .4s,height .4s,opacity .4s;opacity:0;}
+.btn:active::after{width:300px;height:300px;opacity:1;}
+
+.btn-print{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;}
+.btn-print:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,163,74,.3);}
+.btn-print:active{transform:scale(.95)!important;}
+
+textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.1);}
+.type-chip{transition:all .25s cubic-bezier(.34,1.56,.64,1)!important;}
+.type-chip:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(99,102,241,.1);}
+.type-chip:active{transform:scale(.92)!important;}
+.result-card{transition:transform .2s,box-shadow .2s;}
+.result-card:hover{transform:translateX(3px);box-shadow:0 2px 12px rgba(99,102,241,.08);}
+.loading-box .spinner{animation:spin .6s cubic-bezier(.68,-.55,.27,1.55) infinite;}
+.loading-box .msg{animation:pulseText 1.5s ease-in-out infinite;}
+@keyframes pulseText{0%,100%{opacity:1;}50%{opacity:.5;}}
+.card{transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.08);}
+
+/* Toast 弹入 */
+@keyframes toastPop{0%{opacity:0;transform:translateX(-50%) scale(.8) translateY(-10px);}60%{transform:translateX(-50%) scale(1.05) translateY(2px);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
+.toast.show{animation:toastPop .3s ease-out;}
+
+/* 题库动效 */
+@keyframes slideDown{from{opacity:0;transform:translateY(-16px) scaleY(.95);}to{opacity:1;transform:translateY(0) scaleY(1);}}
+@keyframes slideUp{from{opacity:1;transform:translateY(0) scaleY(1);}to{opacity:0;transform:translateY(-16px) scaleY(.95);}}
+@keyframes fadeScaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+@keyframes popIn{0%{opacity:0;transform:scale(.8) translateY(10px);}50%{transform:scale(1.05) translateY(-4px);}100%{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes shimmerSlide{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+
+.bank-panel{animation:slideDown .25s ease-out both;transform-origin:top center;}
+.bank-panel-hide{animation:slideUp .2s ease-in both;transform-origin:top center;}
+.q-card{animation:popIn .3s ease-out both;transition:transform .2s,box-shadow .2s;}
+.q-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(5,150,105,.15);}
+.q-card:active{transform:scale(.98);}
+.bank-detail-card{animation:fadeScaleIn .25s ease-out both;}
+.bank-manage-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1);}
+.bank-manage-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(5,150,105,.3);}
+.bank-manage-btn:active{transform:scale(.95);}
+.bank-stat-num{display:inline-block;animation:fadeScaleIn .35s ease-out;}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <a href="https://zyqby.github.io/openteacher/" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#fff;text-decoration:none;font-size:20px;cursor:pointer" title="返回首页">🏠</a>
+  <h1>📐 OpenTeacher</h1>
+  <p>AI 智能教研 · 小学数学出题助手</p>
+</div>
+
+<!-- API Key 已内置于 getApiKey() 函数中，无需手动输入 -->
+
+<div class="tab-bar" id="tabBar"></div>
+<div id="tabContainer"></div>
+
+<!-- 打印样式：隐藏解答 -->
+<style media="print">
+  body * { visibility: hidden; }
+  #printArea, #printArea * { visibility: visible; }
+  #printArea { position:absolute; left:0; top:0; width:100%; padding:20mm 15mm; }
+  .print-q { page-break-inside:avoid; margin-bottom:18px; font-size:14px; line-height:1.8; }
+  .print-q .print-num { font-weight:700; color:#333; }
+  .print-answer-section { margin-top:30px; border-top:2px dashed #999; padding-top:15px; }
+  .print-answer-section .a-item { margin:6px 0; }
+  .btn-print, .btn, .btn-outline, .tab-bar, .header, .toast { display:none !important; }
+  .print-header { text-align:center; margin-bottom:20px; }
+  .print-header h2 { font-size:20px; }
+  .print-header p { font-size:12px; color:#666; }
+</style>
+
+<script>
+// ============================================================
+// SYSTEM_ANALYZE
+// ============================================================
+const SYSTEM_ANALYZE = `你是 OpenTeacher，小学数学出题专家。
+出题规范：贴合时政/生活场景，每题标注年级/单元/知识点/难度（★~★★★★★），配提示和答案。
+语言简洁，适合小学生。
+输出严格 JSON 格式：
+{
+  "grade":"三年级","unit":"倍的认识","knowledge_point":"倍数关系","difficulty":"★★★☆☆",
+  "questions":[
+    {"id":1,"type":"应用题","content":"题目","hint":"提示","answer":"答案","steps":["步1","步2"]},
+    {"id":2,"type":"选择题","content":"题目","options":["A.选项1","B.选项2","C.选项3","D.选项4"],"answer":"A","hint":"提示","steps":["步1"]},
+    {"id":3,"type":"填空题","content":"题目","answer":"答案","hint":"提示"},
+    {"id":4,"type":"计算题","content":"题目","answer":"答案","steps":["步1"]}
+  ]
+}
+同类变式额外加"original_analysis"描述原题结构。`;
+
+// ============================================================
+// 演示题库
+// ============================================================
+const DEMO_PROBLEMS = [
+  {grade:'三年级',unit:'倍的认识',knowledge:'倍数关系（标准量不变）',difficulty:'★★★☆☆',problem:'商店里有 8 个红气球，蓝气球的个数是红气球的 3 倍。蓝气球有多少个？',steps:['找标准量：红气球 8 个是标准量（1 份）','倍数关系：蓝气球是红气球的 3 倍','列式计算：8 × 3 = 24（个）','答：蓝气球有 24 个'],answer:'24 个',hint:'注意谁是标准量（1 份），求几倍用乘法'},
+  {grade:'三年级',unit:'倍的认识',knowledge:'倍数关系（标准量不变）',difficulty:'★★★★☆',problem:'小明有 5 本故事书，科技书的本数是故事书的 4 倍。科技书比故事书多多少本？',steps:['标准量：故事书 5 本','科技书：5 × 4 = 20（本）','求多多少：20 − 5 = 15（本）','答：科技书比故事书多 15 本'],answer:'15 本',hint:'先求出科技书数量，再求差'},
+  {grade:'三年级',unit:'倍的认识',knowledge:'倍数关系（标准量不变）',difficulty:'★★★★☆',problem:'果园里有 6 棵桃树，梨树的棵数是桃树的 2 倍，苹果树的棵数是桃树的 3 倍。梨树和苹果树一共有多少棵？',steps:['标准量：桃树 6 棵','梨树：6 × 2 = 12（棵）','苹果树：6 × 3 = 18（棵）','总数：12 + 18 = 30（棵）','答：梨树和苹果树一共有 30 棵'],answer:'30 棵',hint:'分别求出两种树的数量再相加'}
+];
+
+// ============================================================
+// API Key 代理函数（密钥内置，无需手动输入）
+// ============================================================
+function getApiKey() {
+  // 🔑 DeepSeek API Key — 如需更换密钥请修改此处的字符串
+  return 'sk-fd2f76fc35f242e6be215e1034cbc7b7';
+}
+
+// ============================================================
+// 内嵌题库数据（无需后端即可使用题库浏览功能）
+// ============================================================
+const BUILTIN_QUESTIONS = [
+  {"id":51,"grade":"三年级","unit":"倍的认识","knowledge":"倍的概念","type":"应用题","difficulty":"★","question":"小明有5支铅笔，小红的铅笔数是小明的2倍，小红有多少支铅笔？","answer":"10支","background":"","news_bg":"","source":"AI生成","created_at":"2026-04-30 02:37:26"},
+  {"id":52,"grade":"五年级","unit":"上册·多边形的面积","knowledge":"平行四边形面积","type":"应用题","difficulty":"★","question":"一块平行四边形花坛，底长8米，高5米，它的面积是多少平方米？","answer":"40平方米","background":"","news_bg":"","source":"AI生成","created_at":"2026-04-30 02:38:06"},
+  {"id":53,"grade":"五年级","unit":"上册·多边形的面积","knowledge":"平行四边形面积","type":"应用题","difficulty":"★","question":"学校走廊有一块平行四边形装饰板，底是12分米，高是7分米，面积是多少平方分米？","answer":"84平方分米","background":"","news_bg":"","source":"AI生成","created_at":"2026-04-30 02:38:06"},
+  {"id":54,"grade":"五年级","unit":"上册·多边形的面积","knowledge":"平行四边形面积","type":"应用题","difficulty":"★","question":"一个平行四边形停车位，底6米，高3米，它的面积是多少？","answer":"18平方米","background":"","news_bg":"","source":"AI生成","created_at":"2026-04-30 02:38:06"}
+];
+const BUILTIN_GRADES = ['一年级','二年级','三年级','四年级','五年级','六年级'];
+const BUILTIN_UNITS = ['倍的认识','上册·多边形的面积'];
+
+// ============================================================
+// 题库本地存储函数
+// ============================================================
+function getLocalBank() {
+  try {
+    const stored = JSON.parse(localStorage.getItem('openteacher_local_bank') || '[]');
+    // 合并内置题库 + 本地新增
+    const all = [...BUILTIN_QUESTIONS, ...stored];
+    // 去重（按题目内容）
+    const seen = new Set();
+    return all.filter(q => {
+      const key = q.question;
+      if(seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  } catch(e) { return BUILTIN_QUESTIONS; }
+}
+function saveLocalBank(questions) {
+  // 只保存自定义新增的题目（内置题不重复存）
+  const existingTexts = new Set(BUILTIN_QUESTIONS.map(q => q.question));
+  const custom = questions.filter(q => !existingTexts.has(q.question));
+  localStorage.setItem('openteacher_local_bank', JSON.stringify(custom));
+}
+function addToLocalBank(q) {
+  const bank = getLocalBank();
+  const exists = bank.some(b => b.question === q.question);
+  if(exists) return false;
+  bank.push(q);
+  saveLocalBank(bank);
+  return true;
+}
+function nextLocalId() {
+  const bank = getLocalBank();
+  return bank.length > 0 ? Math.max(...bank.map(q => q.id)) + 1 : 100;
+}
+
+// ============================================================
+// 状态
+// ============================================================
+let appState = {
+  activeTab: 'math-generate',
+  demoIdx: 0,
+  // 存储最近的出题数据用于打印
+  lastPrintData: null,
+  lastPrintMode: ''
+};
+
+// ============================================================
+// Toast
+// ============================================================
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._timer);el._timer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ============================================================
+// Tab 系统
+// ============================================================
+const TABS = [
+  {id:'math-generate',label:'✨ 自主出题'},
+  {id:'math-analyze',label:'🔍 分析变式'},
+  {id:'math-solutions',label:'📖 解题思路'},
+  {id:'bank',label:'📖 题库'}
+];
+
+function init(){
+  const bar=document.getElementById('tabBar');
+  TABS.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='tab-btn'+(i===0?' active':'');
+    b.textContent=t.label;b.dataset.tab=t.id;
+    b.onclick=()=>switchTab(t.id);
+    bar.appendChild(b);
+  });
+  const ct=document.getElementById('tabContainer');
+  TABS.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='tab-content';d.id='tab-'+t.id;ct.appendChild(d);
+  });
+  renderAll();
+  // 打开页面时自动从云端下载题库
+  setTimeout(()=>syncFromGist(true), 1000);
+}
+function switchTab(id){
+  appState.activeTab=id;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.toggle('active',c.id==='tab-'+id));
+}
+
+// ============================================================
+// API 调用
+// ============================================================
+// 纯 API 调用，返回 JSON 不自动渲染（用于多步流程）
+async function callAPIRaw(messages, modelName){
+  modelName = modelName || 'deepseek-v4-pro';
+  try{
+    const resp=await fetch('https://api.deepseek.com/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.3,max_tokens:2048})
+    });
+    if(!resp.ok){ toast('请求失败 ('+resp.status+')'); return null; }
+    const data=await resp.json();
+    let content=data.choices[0].message.content;
+    if(!content && data.choices[0].message.reasoning_content){
+      const m=data.choices[0].message.reasoning_content.match(/\{[\s\S]*\}/);
+      if(m) content=m[0];
+    }
+    let json=null;
+    try{json=JSON.parse(content.replace(/^\`\`\`json\s*/,'').replace(/\s*\`\`\`$/,'').trim());}catch(e){}
+    if(!json){ const m=content.match(/\{[\s\S]*\}/); if(m) try{json=JSON.parse(m[0]);}catch(e2){} }
+    if(!json) throw new Error('格式异常');
+    return json;
+  }catch(e){ toast('AI 返回格式异常'); return null; }
+}
+
+async function callAPI(messages,tabId){
+  return callAPIWithModel('deepseek-v4-pro', messages, tabId);
+}
+async function callAPIWithModel(model, messages, tabId){
+  const tab=document.getElementById('tab-'+tabId);
+  tab.innerHTML=`<div class="loading-box"><div class="spinner"></div><div class="msg">🤔 AI 正在思考中…</div></div>`;
+  try{
+    const resp=await fetch('https://api.deepseek.com/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
+      body:JSON.stringify({model:model,messages,stream:false,temperature:0.3,max_tokens:4096})
+    });
+    if(!resp.ok){
+      let errTxt='请求失败 ('+resp.status+')';
+      try{const e=await resp.json();errTxt=e.error?.message||errTxt;}catch(e){errTxt=await resp.text()}
+      tab.innerHTML=`<div class="card"><h3>❌ 出错了</h3><p>${errTxt}</p><button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
+      return null;
+    }
+    const data=await resp.json();
+    let content=data.choices[0].message.content;
+    // 如果 content 为空但 reasoning_content 有内容（DeepSeek v4-pro 特性）
+    if(!content && data.choices[0].message.reasoning_content){
+      // 尝试从 reasoning 中提取 JSON
+      const rc = data.choices[0].message.reasoning_content;
+      const m = rc.match(/\{[\s\S]*\}/);
+      if(m) content = m[0];
+    }
+    let json=null;
+    try{json=JSON.parse(content.replace(/^```json\s*/,'').replace(/\s*```$/,'').trim());}catch(e){}
+    if(!json){
+      // 尝试找任何 JSON 对象
+      const matches = content.match(/\{[\s\S]*\}/);
+      if(matches) try{json=JSON.parse(matches[0]);}catch(e2){}
+    }
+    if(!json) throw new Error('AI 返回格式异常，请重试');
+    // 统一处理：标准化 JSON 字段
+    // 修正可能的外层字段名（DeepSeek 有时用 text 不是 content）
+    if(json.questions){
+      json.questions = json.questions.map((q,i) => {
+        // 选择题自动补充选项
+        if((q.type||'').includes('选择') && (!q.options || !q.options.length)){
+          q.options = ['A. 选项A','B. 选项B','C. 选项C','D. 选项D'];
+        }
+        return {
+          id: q.id || i+1,
+          type: q.type || '应用题',
+          content: q.content || q.text || q.question || '',
+          options: q.options || [],
+          hint: q.hint || '',
+          answer: q.answer || '',
+          steps: q.steps || []
+        };
+      });
+    }
+    // 如果返回的是 problems 数组（不是 questions），转换成标准格式
+    if(json.problems && !json.questions){
+      json.questions = (json.problems||[]).map((p,i) => ({
+        id: i+1, type: '应用题',
+        content: typeof p === 'string' ? p : p.content || p.question || p.text || '',
+        hint: p.hint || '',
+        answer: p.answer || '',
+        steps: p.steps || []
+      }));
+    }
+    // 智能分析结果可能没有 questions 数组
+    if(tabId === 'math-analyze' && (!json.questions || !json.questions.length)){
+      renderAnalyzeResult(tabId, json, 'DeepSeek AI');
+    } else {
+      renderResult(tabId,json,'DeepSeek AI');
+    }
+    return json;
+  }catch(e){
+    tab.innerHTML=`<div class="card"><h3>❌ 出错了</h3><p>${e.message}</p><button class="btn" onclick="renderAll();switchTab('${tabId}')">重试</button></div>`;
+    return null;
+  }
+}
+
+function demoReply(messages,tabId,tab){
+  const p=DEMO_PROBLEMS[appState.demoIdx%DEMO_PROBLEMS.length];
+  appState.demoIdx++;
+  const r={subject:'小学数学',grade:p.grade,unit:p.unit,knowledge_point:p.knowledge,difficulty:p.difficulty,questions:[{id:1,type:'应用题',content:p.problem,hint:p.hint,answer:p.answer,steps:p.steps}]};
+  setTimeout(()=>renderResult(tabId,r,'🎯 演示模式'),600);
+  return r;
+}
+
+// ============================================================
+// 打印功能
+// ============================================================
+function printPaper(){
+  if(!appState.lastPrintData) { toast('没有可打印的试卷'); return; }
+  const data = appState.lastPrintData;
+  const mode = appState.lastPrintMode;
+  const w = window.open('','_blank','width=800,height=600');
+  const qs = data.questions || [];
+  let qHtml = qs.map((q,i) => `<div class="print-q">
+    <div class="print-num">${i+1}. <span class="q-type">${q.type||'应用题'}</span></div>
+    <div class="print-body">${q.content}${q.options ? '<br>'+q.options.join('<br>') : ''}</div>
+    <div class="print-answer-space"></div>
+  </div>`).join('');
+  let aHtml = qs.map((q,i) => `<div class="a-item"><span class="a-num">${i+1}.</span> ${q.answer}</div>`).join('');
+
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>数学试卷 - ${data.grade||''} ${data.unit||''}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"SimSun","STSong","Noto Serif CJK SC","Times New Roman",serif;padding:15mm 20mm 25mm;color:#1a1a2e;font-size:14px;}
+.print-header{text-align:center;margin-bottom:28px;border-bottom:3px double #333;padding-bottom:16px;}
+.print-header h2{font-size:24px;letter-spacing:2px;}
+.print-header .sub{font-size:13px;color:#555;margin-top:6px;}
+.print-header .info-line{display:flex;justify-content:space-between;margin-top:14px;font-size:14px;}
+.print-header .info-line span{border-bottom:1px solid #333;padding:0 20px 4px;min-width:120px;}
+.print-q{page-break-inside:avoid;margin-bottom:32px;padding:8px 0 4px;border-bottom:1px dotted #ddd;}
+.print-num{font-weight:700;font-size:15px;margin-bottom:4px;color:#1e293b;}
+.print-num .q-type{font-weight:400;font-size:13px;color:#888;margin-left:6px;}
+.print-body{font-size:15px;line-height:2;margin:6px 0 10px;text-indent:0;}
+.print-answer-space{height:160px;border:1px dashed #ccc;border-radius:6px;margin:6px 0 4px;position:relative;}
+.print-answer-space::after{content:"请在此处作答";position:absolute;bottom:8px;right:12px;font-size:11px;color:#bbb;}
+@media print{.print-answer-space{height:140px;}.print-answer-space::after{display:none;}}
+.print-answer-section{margin-top:48px;border-top:2px dashed #94a3b8;padding-top:20px;page-break-before:auto;}
+.print-answer-section h3{font-size:17px;margin-bottom:12px;color:#333;}
+.a-item{margin:8px 0;font-size:14px;line-height:1.8;padding:4px 0 4px 24px;border-bottom:1px solid #eee;}
+.a-item .a-num{font-weight:700;margin-left:-24px;display:inline-block;width:20px;}
+@media print{body{padding:10mm 18mm 20mm;}}
+</style></head><body>
+<div class="print-header">
+  <h2>📐 小学数学练习题</h2>
+  <div class="sub">${data.grade||''} · ${data.unit||''} · ${data.knowledge_point||''} · 难度：${data.difficulty||''}</div>
+  <div class="info-line"><span>姓名：__________</span><span>班级：__________</span><span>日期：__________</span><span>用时：__________</span></div>
+</div>
+<div>${qHtml}</div>
+<div class="print-answer-section"><h3>📋 参考答案</h3>${aHtml}</div>
+<script>window.onload=function(){setTimeout(function(){window.print();window.close()},300)}<\/script>
+</body></html>`);
+  w.document.close();
+}
+
+// 智能分析结果专用渲染（无 questions 数组的分析报告）
+function renderAnalyzeResult(tabId, data, mode){
+  const tab = document.getElementById('tab-'+tabId);
+  if(!data){tab.innerHTML=`<div class="card"><p>无数据返回</p></div>`;return;}
+  
+  // 保存以供打印
+  if(data.questions && data.questions.length){
+    appState.lastPrintData = data;
+    appState.lastPrintMode = mode;
+  }
+
+  let html=`<div class="card"><div class="meta-row"><span class="badge">${mode||'AI 分析'}</span>`;
+  if(data.grade) html+=`<span class="tag">${data.grade}</span>`;
+  if(data.unit) html+=`<span class="tag">${data.unit}</span>`;
+  if(data.difficulty) html+=`<span class="tag">${data.difficulty}</span>`;
+  html+=`</div>`;
+  
+  // 知识点
+  if(data.knowledge_point) html+=`<p style="font-size:13px;color:#6366f1;margin-bottom:10px">📌 知识点：${data.knowledge_point}</p>`;
+  
+  // 结构分析
+  if(data.original_analysis){
+    const o = data.original_analysis;
+    html+=`<div style="padding:10px;background:#f0f9ff;border-radius:8px;margin-bottom:10px;font-size:13px;color:#0369a1">
+      <strong>原题分析：</strong><br>
+      ${o.grade?`年级：${o.grade}<br>`:''}
+      ${o.unit?`单元：${o.unit}<br>`:''}
+      ${o.knowledge_point?`知识点：${o.knowledge_point}<br>`:''}
+      ${o.structure?`结构：${o.structure}`:''}
+      ${o.difficulty?`难度：${o.difficulty}`:''}
+    </div>`;
+  }
+  
+  // 如果有 questions 也展示
+  (data.questions||[]).forEach((q,i)=>{
+    html+=`<div class="result-card"><div class="q-num">📝 第 ${q.id||i+1} 题</div><div class="q-body">${q.content||''}</div>`;
+    if(q.options && q.options.length){
+      html+=`<div style="margin:6px 0;padding:6px 10px;background:#fafafa;border-radius:6px;font-size:14px;line-height:1.8">${q.options.map(o=>'<div>'+o+'</div>').join('')}</div>`;
+    }
+    html+=`<div class="q-hint">💡 ${q.hint||''}</div>`;
+    if(q.answer) html+=`<div class="q-answer">✅ 答案：${q.answer}</div>`;
+    if(q.steps&&q.steps.length) html+=`<div class="q-steps"><strong>📖 解题思路：</strong>${q.steps.map((s,si)=>`<div class="step">${si+1}. ${s}</div>`).join('')}</div>`;
+    html+=`</div>`;
+  });
+  
+  // 如果只有文字描述
+  if(data.description || data.analysis){
+    html+=`<div style="padding:10px;background:#f8fafc;border-radius:8px;font-size:14px;line-height:1.8">${(data.description||data.analysis||'').replace(/\n/g,'<br>')}</div>`;
+  }
+  
+  html+=`<div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn" style="flex:1;margin:0" onclick="regenerate('${tabId}')">🔄 重新分析</button>
+  </div></div>`;
+  tab.innerHTML=html;
+}
+
+// ============================================================
+// 渲染结果（通用 - 带 questions 数组）
+// ============================================================
+function renderResult(tabId,data,mode){
+  const tab=document.getElementById('tab-'+tabId);
+  if(!data){tab.innerHTML=`<div class="card"><p>无数据返回</p></div>`;return;}
+  // 保存以供打印
+  appState.lastPrintData = data;
+  appState.lastPrintMode = mode;
+
+  let html=`<div class="card"><div class="meta-row"><span class="badge">${mode||'AI 生成'}</span><span class="tag">${data.grade||'?'}</span><span class="tag">${data.unit||'?'}</span><span class="tag">${data.difficulty||'?'}</span></div>`;
+  if(data.knowledge_point) html+=`<p style="font-size:12px;color:#94a3b8;margin-bottom:8px">📌 知识点：${data.knowledge_point}</p>`;
+  if(data.original_analysis){
+    const o=data.original_analysis;
+    html+=`<div style="padding:8px 10px;background:#f0f9ff;border-radius:8px;margin-bottom:10px;font-size:12px;color:#0369a1"><strong>原题分析：</strong> ${o.grade||''} · ${o.unit||''} · ${o.knowledge_point||''} · 结构：${o.structure||''}</div>`;
+  }
+  (data.questions||[]).forEach((q,i)=>{
+    html+=`<div class="result-card"><div class="q-num">📝 第 ${q.id||i+1} 题 · ${q.type||'应用题'}</div><div class="q-body">${q.content||''}</div>`;
+    // 选择题显示选项
+    if(q.options && q.options.length){
+      html+=`<div style="margin:6px 0;padding:6px 10px;background:#fafafa;border-radius:6px;font-size:14px;line-height:1.8">${q.options.map(o=>'<div>'+o+'</div>').join('')}</div>`;
+    }
+    html+=`<div class="q-hint">💡 ${q.hint||'想一想怎么列式？'}</div><div class="q-answer">✅ 答案：${q.answer||''}</div>`;
+    if(q.steps&&q.steps.length) html+=`<div class="q-steps"><strong>📖 解题思路：</strong>${q.steps.map((s,si)=>`<div class="step">${si+1}. ${s}</div>`).join('')}</div>`;
+    html+=`</div>`;
+  });
+  // 底部按钮：重新生成、打印试卷
+  html+=`<div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn btn-outline" style="flex:1;margin:0" onclick="regenerate('${tabId}')">🔄 重新生成</button>
+    <button class="btn-print" style="flex:1;margin:0" onclick="printPaper()">🖨️ 打印试卷</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn btn-outline" style="flex:1;margin:0" onclick="switchTab('bank')">📚 查看题库</button>
+  </div>
+  <div id="importStatus" style="text-align:center;margin-top:8px;font-size:12px">⏳ 正在保存到题库…</div></div>`;
+  tab.innerHTML=html;
+
+  // ===== 自动入库 =====
+  autoImport(data);
+}
+
+function autoImport(data){
+  const el=document.getElementById('importStatus');
+  if(!el) return;
+
+  // 兼容各种字段名
+  const grade = data.grade || data.年级 || data.grade_name || '';
+  const unit = data.unit || data.单元 || data.unit_name || '';
+  const knowledge = data.knowledge_point || data.knowledge || data.知识点 || data.knowledge_name || '';
+  const difficulty = data.difficulty || data.难度 || '★★★';
+  const background = data.background || data.背景 || data.topic || '';
+  const news_bg = data.news_bg || data.时政背景 || '';
+
+  let qs = data.questions || data.问题 || data.problems || [];
+  if(typeof qs === 'string') {
+    try{ qs = JSON.parse(qs); }catch(e){}
+  }
+  if(!Array.isArray(qs)) qs = [];
+
+  let imported = 0;
+  let skipped = 0;
+
+  qs.forEach(q => {
+    if(typeof q === 'string') {
+      q = {content: q, answer: '', type: '应用题'};
+    }
+    const qtext = q.content || q.question || q.题目 || q.text || q.题干 || '';
+    const answer = q.answer || q.答案 || '';
+    if(!qtext) { skipped++; return; }
+    const qtype = q.type || q.题型 || '应用题';
+
+    const newQ = {
+      id: nextLocalId(),
+      grade: grade,
+      unit: unit,
+      knowledge: knowledge,
+      type: qtype,
+      difficulty: difficulty,
+      question: qtext,
+      answer: answer,
+      background: background,
+      news_bg: news_bg,
+      source: 'AI生成',
+      created_at: new Date().toLocaleString()
+    };
+
+    if(addToLocalBank(newQ)) {
+      imported++;
+    } else {
+      skipped++;
+    }
+  });
+
+  if(imported>0){
+    el.innerHTML=`<span style="color:#059669">✅ 已保存 ${imported} 题到本地题库（共 ${getLocalBank().length} 题）</span>`;
+    // 自动上传到云端
+    setTimeout(()=>syncToGist(true), 500);
+  } else if(skipped>0){
+    el.innerHTML=`<span style="color:#f59e0b">⚠️ 已有 ${skipped} 道重复题，未重复入库</span>`;
+  } else {
+    el.innerHTML=`<span style="color:#94a3b8">ℹ️ 没有新题需要入库</span>`;
+  }
+}
+
+function regenerate(tabId){
+  let inputs = {};
+  switch(tabId){
+    case 'math-analyze':
+      inputs.val = document.getElementById('analyzeInput')?.value || '';
+      renderAnalyze();
+      setTimeout(()=>{ document.getElementById('analyzeInput').value = inputs.val; doAnalyze(); }, 50);
+      break;
+    case 'math-generate':
+      ['genGrade','genDifficulty','genBackground','genUnit','genKnowledge','genCount'].forEach(id => {
+        const el = document.getElementById(id); if(el) inputs[id] = el.value;
+      });
+      // 保存题型选择
+      inputs._types = getSelectedTypes();
+      renderGenerate();
+      setTimeout(()=>{
+        ['genGrade','genDifficulty','genBackground','genUnit','genKnowledge','genCount'].forEach(id => {
+          const el = document.getElementById(id); if(el && inputs[id]!==undefined) el.value = inputs[id];
+        });
+        // 恢复题型选择
+        if(inputs._types && inputs._types.length){
+          document.querySelectorAll('#genTypes .type-chip').forEach(el => {
+            const shouldSelect = inputs._types.includes(el.dataset.type);
+            el.classList.toggle('selected', shouldSelect);
+            el.style.borderColor = shouldSelect ? '#6366f1' : '#e2e8f0';
+            el.style.background = shouldSelect ? '#eef2ff' : '#fff';
+            el.style.color = shouldSelect ? '#6366f1' : '#64748b';
+          });
+        }
+        doGenerate();
+      }, 50);
+      break;
+    case 'math-solutions':
+      inputs.val = document.getElementById('solutionInput')?.value || '';
+      renderSolutions();
+      setTimeout(()=>{ document.getElementById('solutionInput').value = inputs.val; doSolutions(); }, 50);
+      break;
+  }
+}
+
+// ============================================================
+// 知识库级联数据
+// ============================================================
+// 内置完整知识库（无需后端也可用）
+const GRADE_DATA = {"一年级":{"units":[{"name":"上册·数一数","knowledge":["1-10的数字认识","数数方法","大小、多少比较"]},{"name":"上册·1-5的认识和加减法","knowledge":["5以内数的认识","数的分与合","5以内加减法"]},{"name":"上册·6-10的认识和加减法","knowledge":["6-10各数的认识","10以内加减法","连加连减"]},{"name":"上册·20以内的进位加法","knowledge":["凑十法","9加几","8加几"]},{"name":"下册·100以内数的认识","knowledge":["数位（十位、个位）","100以内读写","大小比较"]},{"name":"下册·认识人民币","knowledge":["元角分认识","人民币换算","简单计算"]},{"name":"下册·100以内的加法和减法","knowledge":["整十数加减","两位数加减一位数","两位数加减整十数"]}]},"二年级":{"units":[{"name":"上册·长度单位","knowledge":["厘米的认识","米的认识","线段","测量方法"]},{"name":"上册·表内乘法（一）（二）","knowledge":["乘法的初步认识","2-6乘法口诀","7-9乘法口诀"]},{"name":"下册·表内除法（一）（二）","knowledge":["除法的初步认识","用口诀求商","平均分","包含除"]},{"name":"下册·混合运算","knowledge":["同级运算","两级运算","带括号的运算"]},{"name":"下册·有余数的除法","knowledge":["余数概念","竖式计算","解决问题"]},{"name":"下册·万以内数的认识","knowledge":["千的认识","万的认识","读写","大小比较"]}]},"三年级":{"units":[{"name":"上册·倍的认识 ⭐","knowledge":["倍的概念","求一个数是另一个数的几倍（用除法）","求一个数的几倍是多少（用乘法）","和倍问题基础"]},{"name":"上册·多位数乘一位数","knowledge":["整十整百乘一位数","笔算乘法","估算"]},{"name":"上册·长方形和正方形","knowledge":["四边形特征","周长概念","长方形周长","正方形周长"]},{"name":"上册·分数初步认识","knowledge":["几分之一","几分之几","简单比较","同分母加减"]},{"name":"下册·位置与方向","knowledge":["八个方向","描述路线","相对位置"]},{"name":"下册·除数是一位数的除法","knowledge":["口算除法","笔算除法","商的位数"]},{"name":"下册·复式统计表","knowledge":["数据整理","复式统计表","数据分析"]},{"name":"下册·两位数乘两位数","knowledge":["口算乘法","笔算乘法","解决问题"]},{"name":"下册·面积","knowledge":["面积含义","面积单位","长方形面积","正方形面积"]},{"name":"下册·年、月、日","knowledge":["年月日认识","24时计时法","经过时间计算"]},{"name":"下册·小数的初步认识","knowledge":["小数含义","比较大小","简单加减"]}]},"四年级":{"units":[{"name":"上册·大数的认识","knowledge":["亿以内计数","十进制","读写大数","近似数"]},{"name":"上册·公顷和平方千米","knowledge":["公顷","平方千米","单位换算"]},{"name":"上册·角的度量","knowledge":["线段射线直线","角的分类","量角","画角"]},{"name":"上册·三位数乘两位数","knowledge":["积的变化规律","笔算乘法","估算"]},{"name":"上册·平行四边形和梯形","knowledge":["互相垂直","互相平行","高和底","四边形关系"]},{"name":"上册·除数是两位数的除法","knowledge":["口算除法","笔算除法","商的变化规律"]},{"name":"下册·四则运算","knowledge":["加减法意义","乘除法意义","运算顺序","0的运算"]},{"name":"下册·观察物体","knowledge":["从不同方向看","组合体辨认"]},{"name":"下册·运算律","knowledge":["加法交换律","加法结合律","乘法交换律","乘法分配律"]},{"name":"下册·小数的意义和性质","knowledge":["小数的意义","读写","大小比较","小数点移动"]},{"name":"下册·三角形","knowledge":["三角形特征","分类","内角和","三边关系"]},{"name":"下册·小数加减法","knowledge":["小数加减","小数加减混合","整数运算律推广"]}]},"五年级":{"units":[{"name":"上册·小数乘法","knowledge":["小数乘整数","小数乘小数","积的近似数","运算律推广"]},{"name":"上册·位置","knowledge":["数对","行列定位"]},{"name":"上册·小数除法","knowledge":["除数是整数","除数是小数","商的近似数","循环小数"]},{"name":"上册·可能性","knowledge":["确定性","可能性大小","游戏公平"]},{"name":"上册·简易方程","knowledge":["字母表示数","等式的性质","解方程","列方程解决问题"]},{"name":"上册·多边形的面积","knowledge":["平行四边形面积","三角形面积","梯形面积","组合图形"]},{"name":"下册·因数和倍数","knowledge":["因数倍数","2-5-3倍数特征","质数和合数"]},{"name":"下册·长方体和正方体","knowledge":["特征","表面积","体积","容积"]},{"name":"下册·分数的意义和性质","knowledge":["分数意义","分数与除法","真分数假分数","约分通分"]},{"name":"下册·分数的加减法","knowledge":["同分母加减","异分母加减","分数加减混合"]}]},"六年级":{"units":[{"name":"上册·分数乘法","knowledge":["分数乘整数","分数乘分数","混合运算","解决问题"]},{"name":"上册·位置与方向二","knowledge":["描述路线","根据描述绘图"]},{"name":"上册·分数除法","knowledge":["倒数的认识","分数除法","比的意义","比的应用"]},{"name":"上册·圆","knowledge":["圆的周长","圆的面积","扇形"]},{"name":"上册·百分数","knowledge":["百分数意义","百分率","百分数应用"]},{"name":"下册·负数","knowledge":["负数意义","数轴","比较大小"]},{"name":"下册·百分数二","knowledge":["折扣成数","税率利率","百分数综合"]},{"name":"下册·圆柱与圆锥","knowledge":["圆柱特征","表面积","体积","圆锥体积"]},{"name":"下册·比例","knowledge":["比例意义","正反比例","比例尺","用比例解决"]},{"name":"下册·统计","knowledge":["统计图选择","平均数","可能性"]}]}};
+// ============================================================
+// 级联选择器逻辑
+// ============================================================
+function loadUnits(){
+  const grade = document.getElementById('genGrade').value;
+  const unitSel = document.getElementById('genUnit');
+  const knowledgeSel = document.getElementById('genKnowledge');
+  unitSel.innerHTML = '<option value="">选择单元</option>';
+  knowledgeSel.innerHTML = '<option value="">选择知识点</option>';
+  if(!grade || !GRADE_DATA[grade]) return;
+  (GRADE_DATA[grade].units||[]).forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u.name; opt.textContent = u.name;
+    unitSel.appendChild(opt);
+  });
+}
+function loadKnowledge(){
+  const grade = document.getElementById('genGrade').value;
+  const unitName = document.getElementById('genUnit').value;
+  const knowledgeSel = document.getElementById('genKnowledge');
+  knowledgeSel.innerHTML = '<option value="">选择知识点</option>';
+  if(!grade || !unitName || !GRADE_DATA[grade]) return;
+  const unit = (GRADE_DATA[grade].units||[]).find(u => u.name === unitName);
+  if(!unit) return;
+  (unit.knowledge||[]).forEach(k => {
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = k;
+    knowledgeSel.appendChild(opt);
+  });
+}
+
+function renderAll(){
+  // 检查 URL hash 或 localStorage 跳转目标
+  let target = appState.activeTab;
+  const hash = window.location.hash.replace('#', '');
+  if(hash && TABS.some(t => t.id === hash)) target = hash;
+  const stored = localStorage.getItem('openteacher_jump_to');
+  if(stored) { localStorage.removeItem('openteacher_jump_to'); target = stored; }
+  appState.activeTab = target;
+
+  renderGenerate();renderAnalyze();renderSolutions();renderBank();
+  switchTab(appState.activeTab);
+}
+
+function renderGenerate(){
+  document.getElementById('tab-math-generate').innerHTML=`
+    <div class="card">
+      <h3>✨ 自主出题</h3>
+      <p class="hint-text">选择参数，AI 原创生成贴合时政背景的数学题</p>
+      <div class="grid-2">
+        <select id="genGrade" onchange="loadUnits()"><option value="">选择年级</option>
+          <option>一年级</option><option>二年级</option><option>三年级</option><option>四年级</option><option>五年级</option><option>六年级</option>
+        </select>
+        <select id="genDifficulty" onchange="updateReadabilityHint()"><option value="">选择难度</option>
+          <option value="1">★☆☆☆☆（易）</option><option value="2">★★☆☆☆</option><option value="3">★★★☆☆（中）</option><option value="4">★★★★☆</option><option value="5">★★★★★（难）</option>
+        </select>
+      </div>
+      <div id="readabilityHint" style="font-size:12px;color:#94a3b8;margin:6px 0 0;text-align:center"></div>
+      <select id="genUnit" onchange="loadKnowledge()" class="mt-8"><option value="">先选择年级</option></select>
+      <select id="genKnowledge" class="mt-8"><option value="">先选择单元</option></select>
+      <textarea id="genBackground" placeholder="🎯 时政背景（可选）如：杭州亚运会、神舟十九号、嫦娥六号" class="mt-8"></textarea>
+      <div class="mt-8" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <label style="font-size:13px;color:#475569;white-space:nowrap">📝 出题数：</label>
+        <select id="genCount" style="flex:1;min-width:60px">
+          <option value="1">1 题</option>
+          <option value="2">2 题</option>
+          <option value="3" selected>3 题</option>
+          <option value="4">4 题</option>
+          <option value="5">5 题</option>
+        </select>
+      </div>
+      <div class="mt-8" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <label style="font-size:13px;color:#475569;white-space:nowrap">📋 题型：</label>
+        <div id="genTypes" style="display:flex;gap:6px;flex-wrap:wrap">
+          <label class="type-chip selected" data-type="应用题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #6366f1;background:#eef2ff;color:#6366f1;transition:.15s" onclick="toggleType(this)">📝 应用题</label>
+          <label class="type-chip" data-type="选择题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">⭕ 选择题</label>
+          <label class="type-chip" data-type="填空题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">✏️ 填空题</label>
+          <label class="type-chip" data-type="计算题" style="cursor:pointer;padding:5px 12px;border-radius:20px;font-size:13px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:.15s" onclick="toggleType(this)">🧮 计算题</label>
+        </div>
+      </div>
+      <button class="btn" onclick="doGenerate()">开始出题</button>
+    </div>
+    <div id="generateResult"></div>`;
+}
+
+function renderAnalyze(){
+  document.getElementById('tab-math-analyze').innerHTML=`
+    <div class="card">
+      <h3>🔍 分析 & 同类变式</h3>
+      <p class="hint-text">粘贴一道小学数学题，AI 先分析年级/单元/知识点/难度，再自动生成 3 道同类变式题</p>
+      <textarea id="analyzeInput" placeholder="例如：商店里有 8 个红气球，蓝气球的个数是红气球的 3 倍。蓝气球有多少个？"></textarea>
+      <button class="btn" onclick="doAnalyze()">🔍 分析并生成变式</button>
+    </div>
+    <div id="analyzeResult"></div>`;
+}
+
+function renderSolutions(){
+  document.getElementById('tab-math-solutions').innerHTML=`
+    <div class="card">
+      <h3>📖 解题思路</h3>
+      <p class="hint-text">粘贴任意题目，AI 给出适合小学生理解的分步解题思路</p>
+      <textarea id="solutionInput" placeholder="输入题目…"></textarea>
+      <button class="btn" onclick="doSolutions()">分析解题思路</button>
+    </div>
+    <div id="solutionsResult"></div>`;
+}
+
+// ============================================================
+// 操作函数
+// ============================================================
+// 难度对应的字数范围（阅读量）
+const DIFFICULTY_WORD_COUNT = {
+  '1': '约 20~40 字',
+  '2': '约 40~60 字',
+  '3': '约 60~90 字',
+  '4': '约 90~130 字',
+  '5': '约 130~200 字'
+};
+function updateReadabilityHint(){
+  const d = document.getElementById('genDifficulty').value;
+  const hint = document.getElementById('readabilityHint');
+  if(d && DIFFICULTY_WORD_COUNT[d]){
+    hint.textContent = '📖 阅读量：' + DIFFICULTY_WORD_COUNT[d];
+  } else {
+    hint.textContent = '';
+  }
+}
+function toggleType(el){
+  document.querySelectorAll('#genTypes .type-chip').forEach(other => {
+    other.classList.remove('selected');
+    other.style.borderColor = '#e2e8f0';
+    other.style.background = '#fff';
+    other.style.color = '#64748b';
+  });
+  el.classList.add('selected');
+  el.style.borderColor = '#6366f1';
+  el.style.background = '#eef2ff';
+  el.style.color = '#6366f1';
+}
+function getSelectedTypes(){
+  return Array.from(document.querySelectorAll('#genTypes .type-chip.selected')).map(el => el.dataset.type);
+}
+function doGenerate(){
+  const g=document.getElementById('genGrade').value;
+  const d=document.getElementById('genDifficulty').value;
+  const b=document.getElementById('genBackground').value.trim();
+  const u=document.getElementById('genUnit').value.trim();
+  const k=document.getElementById('genKnowledge').value.trim();
+  const c=document.getElementById('genCount')?.value || '3';
+  const types = getSelectedTypes();
+  if(!g){toast('请选择年级');return;}
+  if(!types.length){toast('请至少选择一种题型');return;}
+  let prompt=`请出一道人教版${g}数学题，共 ${c} 道题，题型：${types.join('、')}`;
+  // 选择题必须带选项
+  if(types.includes('选择题')) prompt+=`。注意：选择题必须包含"options"数组，格式如["A. 选项1","B. 选项2","C. 选项3","D. 选项4"]`;
+  if(u) prompt+=`，单元：${u}`;
+  if(k) prompt+=`，知识点：${k}`;
+  if(d){
+    const stars = '★'.repeat(parseInt(d)) + '☆'.repeat(5-parseInt(d));
+    const words = DIFFICULTY_WORD_COUNT[d] || '';
+    prompt+=`，难度：${stars}，阅读量：每题正文约${words}`;
+  }
+  if(b) prompt+=`，背景贴合：${b}`;
+  prompt+='。只输出 JSON。';
+  callAPI([{role:'system',content:SYSTEM_ANALYZE},{role:'user',content:prompt}],'math-generate');
+}
+function doAnalyze(){
+  const v=document.getElementById('analyzeInput').value.trim();
+  if(!v){toast('请输入题目');return;}
+  // 先分析，再生成 3 道同类变式
+  callAPI([{role:'system',content:SYSTEM_ANALYZE+'\n请先分析这道题，然后基于分析结果生成 3 道同类变式题。输出 JSON。'},{role:'user',content:'分析并生成变式：\n'+v}],'math-analyze');
+}
+function doSolutions(){
+  const v=document.getElementById('solutionInput').value.trim();
+  if(!v){toast('请先输入题目');return;}
+  callAPI([{role:'system',content:SYSTEM_ANALYZE+'\n请给出分步解题思路和答案，适合小学生理解。只输出 JSON。'},{role:'user',content:'题目：\n'+v}],'math-solutions');
+}
+// ============================================================
+// 题库浏览（完整功能：浏览+查看+编辑+删除+添加+批量导入）
+// ============================================================
+function renderBank(){
+  const tab=document.getElementById('tab-bank');
+  tab.innerHTML=`
+    <!-- 管理按钮栏 -->
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px;background:#059669" onclick="showAddPanel()">➕ 添加题目</button>
+      <button class="btn btn-outline bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px" onclick="showBatchPanel()">📋 批量导入</button>
+      <button class="btn btn-outline bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px;border-color:#0ea5e9;color:#0ea5e9" onclick="syncToGist(false)">☁️ 上传到云端</button>
+      <button class="btn btn-outline bank-manage-btn" style="flex:1;margin:0;padding:10px;font-size:13px;border-color:#0ea5e9;color:#0ea5e9" onclick="syncFromGist(false)">📥 从云端下载</button>
+    </div>
+    <div id="syncStatus" style="font-size:12px;color:#94a3b8;text-align:center;margin-bottom:8px"></div>
+
+    <div class="card" style="overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="width:48px;height:48px;background:#ecfdf5;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px">📚</div>
+        <div style="flex:1">
+          <h3 style="margin:0;font-size:17px">题库浏览</h3>
+          <p style="font-size:12px;color:#94a3b8;margin:2px 0 0" id="bankSummary">正在加载…</p>
+        </div>
+        <button class="btn-sm" onclick="bankRandom()" style="font-size:13px;padding:6px 16px;background:#059669;color:#fff;border:0;border-radius:10px">🎲 随机</button>
+      </div>
+      <div class="grid-2" style="margin-bottom:8px">
+        <select id="bankGrade" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有年级</option></select>
+        <select id="bankType" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有题型</option></select>
+      </div>
+      <div class="grid-2" style="margin-bottom:10px">
+        <select id="bankDiff" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有难度</option></select>
+        <select id="bankTopic" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有背景</option></select>
+      </div>
+    </div>
+    <div id="bankList" style="text-align:center;padding:20px;color:#94a3b8">正在加载…</div>
+    <div id="bankDetail" style="display:none"></div>
+
+    <!-- 添加面板（默认隐藏） -->
+    <div id="bankAddPanel" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0;font-size:17px;color:#059669">➕ 添加题目</h3>
+          <button onclick="hideAddPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:8px">
+          <select id="addGrade" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0"><option value="">选择年级</option></select>
+          <input id="addUnit" placeholder="单元，如：上册·倍的认识" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+        </div>
+        <div class="grid-2" style="margin-bottom:8px">
+          <input id="addType" placeholder="题型，如：应用题" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+          <input id="addDiff" placeholder="难度（★★★★）" value="★★★" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+        </div>
+        <div class="grid-2" style="margin-bottom:8px">
+          <input id="addKnowledge" placeholder="知识点（可选）" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+          <input id="addBg" placeholder="时政背景（可选）" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">
+        </div>
+        <textarea id="addQuestion" placeholder="题目内容" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:0;resize:vertical;margin-bottom:8px"></textarea>
+        <textarea id="addAnswer" placeholder="答案+解析" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;outline:0;resize:vertical;margin-bottom:10px"></textarea>
+        <div style="display:flex;gap:8px">
+          <button class="btn" style="flex:1;margin:0" onclick="doAdd()">✅ 添加到题库</button>
+          <button class="btn btn-outline" style="flex:1;margin:0" onclick="resetAddForm()">清空</button>
+        </div>
+        <div id="addStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div>
+      </div>
+    </div>
+
+    <!-- 批量导入面板（默认隐藏） -->
+    <div id="bankBatchPanel" style="display:none">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="margin:0;font-size:17px;color:#059669">📋 批量导入</h3>
+          <button onclick="hideBatchPanel()" style="background:0;border:0;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+        </div>
+        <p style="font-size:12px;color:#94a3b8;margin-bottom:8px">粘贴 JSON 数组，每道题包含：grade, unit, question, answer</p>
+        <textarea id="batchInput" style="width:100%;min-height:150px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:12px;font-family:monospace;outline:0;resize:vertical" placeholder='[
+  {"grade":"三年级","unit":"上册·倍的认识","question":"...","answer":"..."}
+]'></textarea>
+        <button class="btn" style="margin-top:8px" onclick="doBatch()">📥 批量导入</button>
+        <div id="batchStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div>
+      </div>
+    </div>
+  `;
+  loadBankFilters();
+  bankList(1);
+  bankStats();
+  loadAddGrade();
+}
+
+function showAddPanel() {
+  const panel = document.getElementById('bankAddPanel');
+  const batch = document.getElementById('bankBatchPanel');
+  batch.style.display = 'none';
+  panel.classList.remove('bank-panel-hide');
+  panel.style.display = 'block';
+  panel.classList.add('bank-panel');
+  loadAddGrade();
+}
+function hideAddPanel() {
+  const panel = document.getElementById('bankAddPanel');
+  panel.classList.remove('bank-panel');
+  panel.classList.add('bank-panel-hide');
+  setTimeout(()=>{panel.style.display='none';panel.classList.remove('bank-panel-hide');},180);
+}
+function showBatchPanel() {
+  const panel = document.getElementById('bankBatchPanel');
+  const addP = document.getElementById('bankAddPanel');
+  addP.style.display = 'none';
+  panel.classList.remove('bank-panel-hide');
+  panel.style.display = 'block';
+  panel.classList.add('bank-panel');
+}
+function hideBatchPanel() {
+  const panel = document.getElementById('bankBatchPanel');
+  panel.classList.remove('bank-panel');
+  panel.classList.add('bank-panel-hide');
+  setTimeout(()=>{panel.style.display='none';panel.classList.remove('bank-panel-hide');},180);
+}
+function resetAddForm() {
+  document.getElementById('addStatus').textContent = '';
+  ['addGrade','addUnit','addType','addDiff','addKnowledge','addBg','addQuestion','addAnswer'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value=id==='addDiff'?'★★★':'';
+  });
+}
+
+// ---- Gist 云端同步 ----
+const GIST_ID = 'ab817e548c44aab63f82ce522955697c';
+
+function getGistToken(){
+  let t = localStorage.getItem('openteacher_gist_token');
+  if(!t) {
+    t = prompt('请输入 GitHub Token（用于同步题库到云端）\n去 https://github.com/settings/tokens 创建，勾选 gist 权限');
+    if(t) localStorage.setItem('openteacher_gist_token', t);
+  }
+  return t;
+}
+
+function syncStatus(msg, color){
+  const el=document.getElementById('syncStatus');
+  if(el) el.innerHTML='<span style="color:'+(color||'#94a3b8')+'">'+msg+'</span>';
+}
+
+async function syncToGist(silent){
+  const token = localStorage.getItem('openteacher_gist_token');
+  if(!token) {
+    if(!silent) {
+      const t = prompt('请输入 GitHub Token（用于同步题库到云端）\n去 https://github.com/settings/tokens 创建，勾选 gist 权限');
+      if(t) localStorage.setItem('openteacher_gist_token', t);
+    }
+    return;
+  }
+  if(!silent) syncStatus('⏳ 正在上传到云端…','#0ea5e9');
+  try {
+    const bank = getLocalBank();
+    const data = {questions: bank};
+    const resp = await fetch('https://api.github.com/gists/'+GIST_ID, {
+      method: 'PATCH',
+      headers: {'Authorization':'token '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({
+        description: 'OpenTeacher 题库同步',
+        files: {'questions.json': {content: JSON.stringify(data, null, 2)}}
+      })
+    });
+    if(!resp.ok) throw new Error('上传失败 '+resp.status);
+    if(!silent) syncStatus('✅ 已上传 '+bank.length+' 题到云端','#059669');
+  } catch(e) {
+    if(!silent) syncStatus('❌ 同步失败: '+e.message,'#ef4444');
+  }
+}
+
+async function syncFromGist(silent){
+  if(!silent) syncStatus('⏳ 正在从云端下载…','#0ea5e9');
+  try {
+    // 公开 Gist 可以无 token 读取
+    const resp = await fetch('https://api.github.com/gists/'+GIST_ID);
+    if(!resp.ok) throw new Error('下载失败 '+resp.status);
+    const gist = await resp.json();
+    const raw = gist.files['questions.json'].content;
+    if(!raw || raw === '[]') {
+      syncStatus('ℹ️ 云端暂无数据','#f59e0b');
+      return;
+    }
+    const data = JSON.parse(raw);
+    if(!data.questions || !Array.isArray(data.questions)){
+      throw new Error('云端数据格式异常');
+    }
+    const builtinTexts = new Set(BUILTIN_QUESTIONS.map(q => q.question));
+    const cloudCustom = data.questions.filter(q => !builtinTexts.has(q.question));
+    saveLocalBank(cloudCustom);
+    if(cloudCustom.length) {
+      bankList(1);
+      bankStats();
+    }
+    if(!silent) {
+      syncStatus('✅ 已从云端同步 '+cloudCustom.length+' 题','#059669');
+      toast('☁️ 同步完成');
+    }
+  } catch(e) {
+    if(!silent) syncStatus('❌ 同步失败: '+e.message,'#ef4444');
+  }
+}
+
+function bankSwitchTab(id){
+  document.getElementById('bankBrowseContent').style.display = id==='browse'?'block':'none';
+  document.getElementById('bankAddContent').style.display = id==='add'?'block':'none';
+  document.getElementById('bankBatchContent').style.display = id==='batch'?'block':'none';
+  ['bankTabBrowse','bankTabAdd','bankTabBatch'].forEach(tid=>{
+    const el=document.getElementById(tid);
+    if(!el) return;
+    const isActive = (tid==='bankTabBrowse' && id==='browse') || (tid==='bankTabAdd' && id==='add') || (tid==='bankTabBatch' && id==='batch');
+    el.style.background = isActive ? '#059669' : 'transparent';
+    el.style.color = isActive ? '#fff' : '#64748b';
+    el.style.fontWeight = isActive ? '600' : '400';
+  });
+  if(id==='add') loadAddGrade();
+  if(id==='browse'){bankList(1);bankStats();}
+}
+
+// ---- 浏览 ----
+function bankStats(){
+  const el=document.getElementById('bankSummary');
+  if(!el) return;
+  const bank = getLocalBank();
+  const units = new Set(bank.map(q => q.unit));
+  const topics = new Set(bank.map(q => q.background).filter(Boolean));
+  el.innerHTML='📊 共 <strong>'+bank.length+'</strong> 题 · '+units.size+' 个单元 · '+topics.size+' 种时政背景';
+}
+
+function loadBankFilters(){
+  const bank = getLocalBank();
+  const fill=(id,items)=>{
+    const sel=document.getElementById(id);
+    if(!sel) return;
+    items.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v;o.textContent=v;
+      sel.appendChild(o);
+    });
+  };
+  fill('bankGrade', BUILTIN_GRADES);
+  fill('bankType', [...new Set(bank.map(q=>q.type))].filter(Boolean));
+  fill('bankDiff', [...new Set(bank.map(q=>q.difficulty))].filter(Boolean));
+  fill('bankTopic', [...new Set(bank.map(q=>q.background))].filter(Boolean));
+}
+
+function bankList(page){
+  const grade=document.getElementById('bankGrade')?.value||'';
+  const type=document.getElementById('bankType')?.value||'';
+  const diff=document.getElementById('bankDiff')?.value||'';
+  const topic=document.getElementById('bankTopic')?.value||'';
+
+  const el=document.getElementById('bankList');
+  if(!el) return;
+  el.innerHTML='';
+
+  let items = getLocalBank();
+  if(grade) items = items.filter(q => q.grade === grade);
+  if(type) items = items.filter(q => q.type === type);
+  if(diff) items = items.filter(q => q.difficulty === diff);
+  if(topic) items = items.filter(q => q.background === topic);
+
+  const limit = 15;
+  const pages = Math.max(1, Math.ceil(items.length / limit));
+  page = Math.min(page, pages);
+  const offset = (page - 1) * limit;
+  const pageItems = items.slice(offset, offset + limit);
+
+  if(!pageItems.length){
+    el.innerHTML='<div class="card" style="text-align:center;color:#94a3b8;padding:30px">📭 没有匹配的题目</div>';
+    return;
+  }
+
+  let html='<div class="q-list">';
+  pageItems.forEach(q=>{
+    const stars = q.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:#e2e8f0">☆</span>');
+    html+='<div class="q-card" style="background:#fff;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);border-left:4px solid #059669;margin-bottom:6px;position:relative">'
+      +'<button style="position:absolute;top:8px;right:8px;background:0;border:0;color:#fca5a5;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1" onclick="event.stopPropagation();bankDel('+q.id+')" title="删除">✕</button>'
+      +'<button style="position:absolute;top:8px;right:32px;background:0;border:0;color:#94a3b8;font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1" onclick="event.stopPropagation();bankEdit('+q.id+')" title="编辑">✎</button>'
+      +'<div onclick="bankGet('+q.id+')" style="cursor:pointer">'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;padding-right:40px">'
+      +'<span style="background:#ecfdf5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px">'+q.grade+'</span>'
+      +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+q.unit+'</span>'
+      +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+(q.type||'')+'</span>'
+      +'<span style="font-size:11px;margin-left:auto">'+stars+'</span>'
+      +'</div>'
+      +'<div style="font-size:13px;color:#334155;line-height:1.6">'+q.question.substring(0,60)+'...</div>'
+      +'</div></div>';
+  });
+  html+='</div>';
+
+  if(pages>1){
+    html+='<div style="display:flex;gap:4px;justify-content:center;padding:10px 0;flex-wrap:wrap">';
+    for(let i=1;i<=pages;i++){
+      html+='<button style="background:'+(i===page?'#059669':'#fff')+';color:'+(i===page?'#fff':'#475569')+';border:1px solid '+(i===page?'#059669':'#e2e8f0')+';border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer" onclick="bankList('+i+')">'+i+'</button>';
+    }
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ---- 查看详情弹窗 ----
+function bankGet(id){
+  const el=document.getElementById('bankDetail');
+  el.style.display='block';
+  const d = getLocalBank().find(q => q.id === id);
+  if(!d){ el.innerHTML='<p style="color:#ef4444">题目不存在</p>'; return; }
+
+  const stars = d.difficulty.replace(/★/g,'<span style="color:#f59e0b">★</span>').replace(/☆/g,'<span style="color:#e2e8f0">☆</span>');
+  el.innerHTML='<div class="card bank-detail-card" style="background:#f0fdf4;border:2px solid #059669">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<h3 style="font-size:16px;color:#059669">📝 第 #'+d.id+' 题</h3>'
+    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:#94a3b8">✕</button>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'
+    +'<span style="background:#ecfdf5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px">'+d.grade+'</span>'
+    +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+d.unit+'</span>'
+    +'<span style="background:#f1f5f9;color:#475569;padding:2px 10px;border-radius:20px;font-size:11px">'+(d.type||'')+'</span>'
+    +'<span style="font-size:12px">'+stars+'</span>'
+    +'</div>'
+    +'<p style="font-size:13px;color:#6366f1;margin-bottom:6px"><strong>📌 '+(d.knowledge||'')+'</strong></p>'
+    +(d.background?'<p style="font-size:12px;color:#059669">🏷️ 背景：'+d.background+'</p>':'')
+    +(d.news_bg?'<p style="font-size:11px;color:#94a3b8">📰 '+d.news_bg+'</p>':'')
+    +'<div style="background:#f8fafc;border-radius:12px;padding:16px;font-size:15px;line-height:1.8;margin:10px 0">'+d.question+'</div>'
+    +'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;font-size:14px;color:#166534;line-height:1.7">'
+    +'<strong>✅ 答案 & 解析</strong><br>'+d.answer.replace(/\n/g,'<br>')+'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:14px">'
+    +'<button class="btn btn-outline" style="flex:1;margin:0" onclick="document.getElementById(\'bankDetail\').style.display=\'none\';bankEdit('+d.id+')">✎ 编辑</button>'
+    +'<button class="btn btn-outline" style="flex:1;margin:0;color:#ef4444;border-color:#ef4444" onclick="document.getElementById(\'bankDetail\').style.display=\'none\';bankDel('+d.id+')">🗑️ 删除</button>'
+    +'<button class="btn btn-outline" style="flex:1;margin:0" onclick="bankRandomGrade(\''+d.grade+'\')">🎲 再来一题</button>'
+    +'</div></div>';
+}
+
+// ---- 编辑 ----
+function bankEdit(id){
+  const d = getLocalBank().find(q => q.id === id);
+  if(!d){ toast('题目不存在'); return; }
+  const el=document.getElementById('bankDetail');
+  el.style.display='block';
+  el.innerHTML='<div class="card" style="background:#f0fdf4;border:2px solid #059669">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<h3 style="font-size:16px;color:#059669">✎ 编辑 #'+d.id+'</h3>'
+    +'<button onclick="document.getElementById(\'bankDetail\').style.display=\'none\'" style="background:0;border:0;font-size:18px;cursor:pointer;color:#94a3b8">✕</button>'
+    +'</div>'
+    +'<div class="grid-2" style="margin-bottom:8px">'
+    +'<select id="editGrade" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'  <option value="">年级</option>'
+    +'  <option value="一年级">一年级</option><option value="二年级">二年级</option><option value="三年级">三年级</option>'
+    +'  <option value="四年级">四年级</option><option value="五年级">五年级</option><option value="六年级">六年级</option>'
+    +'</select>'
+    +'<input id="editUnit" value="'+d.unit+'" placeholder="单元" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'</div>'
+    +'<div class="grid-2" style="margin-bottom:8px">'
+    +'<input id="editType" value="'+(d.type||'')+'" placeholder="题型" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'<input id="editDiff" value="'+d.difficulty+'" placeholder="难度" style="font-size:13px;padding:8px 10px;border:2px solid #e2e8f0;border-radius:10px;outline:0">'
+    +'</div>'
+    +'<textarea id="editQuestion" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.question+'</textarea>'
+    +'<textarea id="editAnswer" style="width:100%;min-height:60px;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:13px;outline:0;resize:vertical;margin-bottom:8px">'+d.answer+'</textarea>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button class="btn" style="flex:1;margin:0" onclick="bankSaveEdit('+d.id+')">💾 保存修改</button>'
+    +'<button class="btn btn-outline" style="flex:1;margin:0" onclick="document.getElementById(\'bankDetail\').style.display=\'none\'">取消</button>'
+    +'</div>'
+    +'<div id="editStatus" style="font-size:12px;margin-top:6px;color:#94a3b8"></div></div>';
+  document.getElementById('editGrade').value = d.grade;
+}
+
+function bankSaveEdit(id){
+  const st=document.getElementById('editStatus');
+  const grade=document.getElementById('editGrade').value;
+  const unit=document.getElementById('editUnit').value.trim();
+  const qtype=document.getElementById('editType').value.trim();
+  const diff=document.getElementById('editDiff').value.trim()||'★★★';
+  const question=document.getElementById('editQuestion').value.trim();
+  const answer=document.getElementById('editAnswer').value.trim();
+  if(!question){st.innerHTML='<span style="color:#ef4444">题目不能为空</span>';return;}
+  if(!grade){st.innerHTML='<span style="color:#ef4444">请选择年级</span>';return;}
+
+  // 在 localStorage 中更新
+  const bank = getLocalBank();
+  const idx = bank.findIndex(q => q.id === id);
+  if(idx === -1){st.innerHTML='<span style="color:#ef4444">题目不存在</span>';return;}
+  bank[idx].grade = grade;
+  bank[idx].unit = unit || grade;
+  bank[idx].type = qtype;
+  bank[idx].difficulty = diff;
+  bank[idx].question = question;
+  bank[idx].answer = answer;
+  saveLocalBank(bank);
+  st.innerHTML='<span style="color:#059669">✅ 已保存</span>';
+  setTimeout(()=>{document.getElementById('bankDetail').style.display='none';bankList(1);bankStats();},600);
+}
+
+// ---- 删除 ----
+function bankDel(id){
+  if(!confirm('确定删除这道题？')) return;
+  const st = getLocalBank();
+  const bank = getLocalBank();
+  const newBank = bank.filter(q => q.id !== id);
+  if(newBank.length === bank.length){ toast('题目不存在'); return; }
+  saveLocalBank(newBank);
+  toast('✅ 已删除');
+  bankList(1);
+  bankStats();
+  document.getElementById('bankDetail').style.display='none';
+}
+
+// ---- 添加 ----
+function loadAddGrade(){
+  const sel=document.getElementById('addGrade');
+  if(!sel || sel.options.length>1) return;
+  BUILTIN_GRADES.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o)});
+}
+function doAdd(){
+  const st=document.getElementById('addStatus');
+  const grade=document.getElementById('addGrade').value;
+  const unit=document.getElementById('addUnit').value.trim();
+  const qtype=document.getElementById('addType').value.trim();
+  const diff=document.getElementById('addDiff').value.trim()||'★★★';
+  const knowledge=document.getElementById('addKnowledge').value.trim();
+  const bg=document.getElementById('addBg').value.trim();
+  const question=document.getElementById('addQuestion').value.trim();
+  const answer=document.getElementById('addAnswer').value.trim();
+  if(!grade){st.innerHTML='<span style="color:#ef4444">请选择年级</span>';return;}
+  if(!question){st.innerHTML='<span style="color:#ef4444">请输入题目</span>';return;}
+
+  const newQ = {
+    id: nextLocalId(),
+    grade: grade,
+    unit: unit || grade,
+    knowledge: knowledge || '',
+    type: qtype || '应用题',
+    difficulty: diff,
+    question: question,
+    answer: answer,
+    background: bg,
+    news_bg: '',
+    source: '手动添加',
+    created_at: new Date().toLocaleString()
+  };
+
+  if(addToLocalBank(newQ)){
+    st.innerHTML='<span style="color:#059669">✅ 已添加 #'+newQ.id+'</span>';
+    ['addGrade','addUnit','addType','addDiff','addKnowledge','addBg','addQuestion','addAnswer'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.value=id==='addDiff'?'★★★':'';
+    });
+    bankStats();
+  } else {
+    st.innerHTML='<span style="color:#f59e0b">⚠️ 该题目已存在</span>';
+  }
+}
+
+// ---- 批量导入 ----
+function doBatch(){
+  const st=document.getElementById('batchStatus');
+  const input=document.getElementById('batchInput').value.trim();
+  if(!input){st.innerHTML='<span style="color:#ef4444">请粘贴 JSON 数据</span>';return;}
+  let data;
+  try{data=JSON.parse(input);}catch(e){st.innerHTML='<span style="color:#ef4444">JSON 格式错误</span>';return;}
+  if(!Array.isArray(data)){st.innerHTML='<span style="color:#ef4444">需要 JSON 数组</span>';return;}
+
+  let success = 0, failed = 0;
+  data.forEach(item=>{
+    const qtext = item.question || item.content || '';
+    if(!qtext){ failed++; return; }
+    const newQ = {
+      id: nextLocalId(),
+      grade: item.grade || '',
+      unit: item.unit || item.grade || '',
+      knowledge: item.knowledge || '',
+      type: item.type || '应用题',
+      difficulty: item.difficulty || '★★★',
+      question: qtext,
+      answer: item.answer || '',
+      background: item.background || '',
+      news_bg: '',
+      source: '批量导入',
+      created_at: new Date().toLocaleString()
+    };
+    if(addToLocalBank(newQ)) success++; else failed++;
+  });
+
+  if(success>0) st.innerHTML='<span style="color:#059669">✅ 成功 '+success+' 条'+(failed?'，失败 '+failed+' 条':'')+'</span>';
+  else st.innerHTML='<span style="color:#ef4444">❌ 全部失败</span>';
+  bankStats();
+}
+
+// ---- 随机 ----
+function bankRandom(){
+  bankRandomGrade('');
+}
+function bankRandomGrade(grade){
+  const bank = getLocalBank();
+  const filtered = grade ? bank.filter(q => q.grade === grade) : bank;
+  if(!filtered.length){ toast('题库为空'); return; }
+  const rand = filtered[Math.floor(Math.random() * filtered.length)];
+  bankGet(rand.id);
+}
+
+// ============================================================
+// 启动
+// ============================================================
+init();
+</script>
+</body>
+</html>
