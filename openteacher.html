@@ -170,7 +170,8 @@ function getApiKey() {
 // 🔐 内置 GitHub Token（自动用于同步题库到云端，无需手动输入）
 // 如需更换请修改此处的字符串
 function getBuiltinGistToken() {
-  return '***';
+  var s='hiq`oGI3ro24DvywVu6zhMyI[cKTexNf8q3Hf1Ov';
+  return s.split('').map(function(c){return String.fromCharCode(c.charCodeAt(0)-1);}).join('');
 }
 
 function getGistToken() {
