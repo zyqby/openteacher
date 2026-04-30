@@ -6182,8 +6182,13 @@ function bankList(page){
   const pages = Math.max(1, Math.ceil(items.length / limit));
   page = Math.min(page, pages);
   const offset = (page - 1) * limit;
-  // 按难度排序（从易到难）
-  items.sort((a,b) => (a.difficulty||'').length - (b.difficulty||'').length);
+  // 按难度排序（从易到难），同难度按年级
+  const gradeOrder = {"一年级":1,"二年级":2,"三年级":3,"四年级":4,"五年级":5,"六年级":6};
+  items.sort((a,b) => {
+    const diffSort = (a.difficulty||'').length - (b.difficulty||'').length;
+    if(diffSort !== 0) return diffSort;
+    return (gradeOrder[a.grade]||0) - (gradeOrder[b.grade]||0);
+  });
   const pageItems = items.slice(offset, offset + limit);
 
   if(!pageItems.length){
