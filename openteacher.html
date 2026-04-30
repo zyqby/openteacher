@@ -5959,6 +5959,9 @@ function renderBank(){
         <select id="bankDiff" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有难度</option></select>
         <select id="bankTopic" onchange="bankList(1)" style="font-size:12px;padding:6px 8px"><option value="">所有背景</option></select>
       </div>
+      <div style="margin-bottom:10px">
+        <select id="bankKnowledge" onchange="bankList(1)" style="font-size:12px;padding:6px 8px;width:100%"><option value="">所有知识点</option></select>
+      </div>
     </div>
     <div id="bankList" style="text-align:center;padding:20px;color:var(--text-muted)">正在加载…</div>
     <div id="bankDetail" style="display:none"></div>
@@ -6151,6 +6154,7 @@ function loadBankFilters(){
   fill('bankType', [...new Set(bank.map(q=>q.type))].filter(Boolean));
   fill('bankDiff', [...new Set(bank.map(q=>q.difficulty))].filter(Boolean));
   fill('bankTopic', [...new Set(bank.map(q=>q.background))].filter(Boolean));
+  fill('bankKnowledge', [...new Set(bank.map(q=>q.knowledge))].filter(Boolean));
 }
 
 function bankList(page){
@@ -6168,6 +6172,8 @@ function bankList(page){
   if(type) items = items.filter(q => q.type === type);
   if(diff) items = items.filter(q => q.difficulty === diff);
   if(topic) items = items.filter(q => q.background === topic);
+  const knowledge=document.getElementById('bankKnowledge')?.value||'';
+  if(knowledge) items = items.filter(q => q.knowledge === knowledge);
 
   const limit = 15;
   const pages = Math.max(1, Math.ceil(items.length / limit));
@@ -6191,6 +6197,7 @@ function bankList(page){
       +'<span style="background:#ecfdf5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px">'+q.grade+'</span>'
       +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+q.unit+'</span>'
       +'<span style="background:rgba(255,255,255,0.05);color:var(--text-light);padding:2px 10px;border-radius:20px;font-size:11px">'+(q.type||'')+'</span>'
+      +'<span style="background:rgba(59,130,246,0.12);color:var(--primary-light);padding:2px 10px;border-radius:20px;font-size:11px;border:1px solid rgba(59,130,246,0.2)">📌 '+q.knowledge+'</span>'
       +'<span style="font-size:11px;margin-left:auto">'+stars+'</span>'
       +'</div>'
       +'<div style="font-size:13px;color:#334155;line-height:1.6">'+q.question.substring(0,60)+'...</div>'
