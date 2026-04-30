@@ -53,30 +53,22 @@ select{appearance:auto;cursor:pointer}
 .mb-8{margin-bottom:8px}
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%}
 .toast.show{opacity:1}
-
-/* Tab 切换动效 */
 @keyframes tabSlideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 .tab-content.active{animation:tabSlideIn .3s ease-out;}
-
-/* 卡片入场 */
 @keyframes cardBounceIn{0%{opacity:0;transform:translateY(20px) scale(.97);}60%{transform:translateY(-3px) scale(1.01);}100%{opacity:1;transform:translateY(0) scale(1);}}
 .result-card{animation:cardBounceIn .35s ease-out both;}
 .result-card:nth-child(2){animation-delay:.08s;}
 .result-card:nth-child(3){animation-delay:.16s;}
 .result-card:nth-child(4){animation-delay:.24s;}
 .result-card:nth-child(5){animation-delay:.32s;}
-
-/* 按钮动效 */
 .btn{position:relative;overflow:hidden;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s;}
 .btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,130,246,.3);}
 .btn:active{transform:scale(.95)!important;}
 .btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.2);transform:translate(-50%,-50%);transition:width .4s,height .4s,opacity .4s;opacity:0;}
 .btn:active::after{width:300px;height:300px;opacity:1;}
-
 .btn-print{transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;}
 .btn-print:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,197,94,.3);}
 .btn-print:active{transform:scale(.95)!important;}
-
 textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15);}
 .type-chip{transition:all .25s cubic-bezier(.34,1.56,.64,1)!important;}
 .type-chip:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(59,130,246,.15);}
@@ -88,18 +80,13 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 @keyframes pulseText{0%,100%{opacity:1;}50%{opacity:.5;}}
 .card{transition:transform .2s,box-shadow .2s;}
 .card:hover{transform:translateY(-1px);box-shadow:0 3px 12px rgba(0,0,0,.3);}
-
-/* Toast 弹入 */
 @keyframes toastPop{0%{opacity:0;transform:translateX(-50%) scale(.8) translateY(-10px);}60%{transform:translateX(-50%) scale(1.05) translateY(2px);}100%{opacity:1;transform:translateX(-50%) scale(1) translateY(0);}}
 .toast.show{animation:toastPop .3s ease-out;}
-
-/* 题库动效 */
 @keyframes slideDown{from{opacity:0;transform:translateY(-16px) scaleY(.95);}to{opacity:1;transform:translateY(0) scaleY(1);}}
 @keyframes slideUp{from{opacity:1;transform:translateY(0) scaleY(1);}to{opacity:0;transform:translateY(-16px) scaleY(.95);}}
 @keyframes fadeScaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
 @keyframes popIn{0%{opacity:0;transform:scale(.8) translateY(10px);}50%{transform:scale(1.05) translateY(-4px);}100%{opacity:1;transform:scale(1) translateY(0);}}
 @keyframes shimmerSlide{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
-
 .bank-panel{animation:slideDown .25s ease-out both;transform-origin:top center;}
 .bank-panel-hide{animation:slideUp .2s ease-in both;transform-origin:top center;}
 .q-card{animation:popIn .3s ease-out both;transition:transform .2s,box-shadow .2s;}
@@ -110,8 +97,6 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 .bank-manage-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(34,197,94,.3);}
 .bank-manage-btn:active{transform:scale(.95);}
 .bank-stat-num{display:inline-block;animation:fadeScaleIn .35s ease-out;}
-
-/* 题库详情 Modal 弹窗 - 深色增强版 */
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeInOverlay .25s ease-out;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:16px}
 @keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}
 .modal-content{background:#070a14;border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 0 0 1px rgba(255,255,255,0.04),0 25px 80px rgba(0,0,0,0.8);animation:modalExpand .35s cubic-bezier(.22,1,.36,1) both}
@@ -138,8 +123,6 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 .modal-btn-outline:hover{border-color:rgba(255,255,255,0.3)!important;color:#fff}
 .modal-btn-danger{background:transparent;border:1.5px solid rgba(239,68,68,0.25)!important;color:#fca5a5}
 .modal-btn-danger:hover{border-color:#ef4444!important;background:rgba(239,68,68,0.1)}
-
-/* 编辑modal表单 */
 .modal-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
 .modal-form-group{margin-bottom:10px}
 .modal-form-group label{font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;display:block;margin-bottom:3px}
@@ -180,11 +163,50 @@ textarea:focus,input:focus,select:focus{transform:translateY(-1px);box-shadow:0 
 
 <script>
 // ============================================================
-// SYSTEM_ANALYZE
+// SYSTEM_ANALYZE — 重构版（分题型难度规则 + 计算题专属处理）
 // ============================================================
-const SYSTEM_ANALYZE = `你是一名小学数学老师，根据用户要求出题。
-要求：贴合时政/生活场景，每题标注年级/单元/知识点/难度，配提示和分步答案。
-输出JSON：{grade,unit,knowledge_point,difficulty,questions:[{id,type,content,hint,answer,steps}]}`;
+const SYSTEM_ANALYZE = `你是一位资深小学数学教研专家。你的任务是**严格根据用户指定的参数**生成高质量数学题。
+
+## 一、核心原则
+1. **参数为准**：用户会提供年级、单元、知识点、题型、难度等信息，你出的每一道题都必须精准落在这些参数范围内，绝不超纲或偏离。
+2. **知识点准确性**：你对人教版小学1-6年级教材非常熟悉，确保题目对应的知识点与用户给出的单元/知识点标签一致。
+3. **时政/生活化（仅应用题）**：应用题应尽可能贴合真实生活或时政场景，但计算题、填空题、选择题不做此要求。
+
+## 二、难度标准（分题型）
+### 通用难度（应用题、选择题、填空题）
+- ★☆☆☆☆：一步计算，直接套用公式或概念
+- ★★☆☆☆：两步计算，简单转换
+- ★★★☆☆：多步计算，需分析数量关系，阅读量约60~90字
+- ★★★★☆：逆向思维或隐含条件，阅读量约90~130字
+- ★★★★★：综合多知识点，有陷阱需要辨析，阅读量约130~200字
+
+### 计算题专属难度（只看算式复杂度，不看字数）
+- ★☆☆☆☆：同级一步运算（如两位数加两位数、表内乘除法）
+- ★★☆☆☆：两步同级或一步混合（如乘加、乘减、带余数除法）
+- ★★★☆☆：三步以上混合运算，含括号或运算律应用
+- ★★★★☆：多位数乘除法（需列竖式）、小数/分数四则运算、简便运算
+- ★★★★★：复杂混合运算，包含小数、分数、百分数转换或巧算技巧
+**注意：计算题只输出纯算式，不加任何背景、单位、故事。**
+
+## 三、输出格式（严格JSON）
+{
+  "grade": "给定年级",
+  "unit": "给定单元",
+  "knowledge_point": "给定知识点",
+  "difficulty": "给定难度（如★★★☆☆）",
+  "questions": [
+    {
+      "id": 1,
+      "type": "题型（应用题/计算题/选择题/填空题）",
+      "content": "题目内容（计算题只写算式，不用加单位）",
+      "options": ["仅选择题提供，选项A", "选项B", "选项C", "选项D"],
+      "hint": "解题提示",
+      "answer": "最终答案",
+      "steps": ["分步1", "分步2", "..."]
+    }
+  ]
+}
+注意：如果题型是计算题，则“options”字段省略；“content”就是纯算式（如“1234 × 5678”）；“steps”拆解计算过程。若题型是选择题，则必须包含“options”数组，且至少4个选项。`;
 
 // ============================================================
 // 演示题库
@@ -309,10 +331,6 @@ function switchTab(id){
 // ============================================================
 // API 调用
 // ============================================================
-// 纯 API 调用，返回 JSON 不自动渲染（用于多步流程）
-// ============================================================
-// API 调用（带进度、超时、重试、缓存）
-// ============================================================
 const API_CACHE = new Map();
 function getCacheKey(messages){
   return messages.map(m=>m.role+':'+m.content.slice(0,40)).join('|');
@@ -328,7 +346,7 @@ async function callAPIRaw(messages, modelName){
     const resp=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.3,max_tokens:2048}),
+      body:JSON.stringify({model:modelName,messages,stream:false,temperature:0.8,max_tokens:8192}),
       signal:controller.signal
     });
     clearTimeout(timer);
@@ -409,7 +427,7 @@ async function callAPIWithModel(model, messages, tabId){
       const resp=await fetch('https://api.deepseek.com/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+getApiKey()},
-        body:JSON.stringify({model:model,messages,stream:false,temperature:0.3,max_tokens:2048}),
+        body:JSON.stringify({model:model,messages,stream:false,temperature:0.8,max_tokens:8192}),
         signal:controller.signal
       });
       clearTimeout(timer);
@@ -754,7 +772,6 @@ function regenerate(tabId){
 // ============================================================
 // 知识库级联数据
 // ============================================================
-// 内置完整知识库（无需后端也可用）
 const GRADE_DATA = {"一年级":{"units":[{"name":"上册·数一数","knowledge":["1-10的数字认识","数数方法","大小、多少比较"]},{"name":"上册·1-5的认识和加减法","knowledge":["5以内数的认识","数的分与合","5以内加减法"]},{"name":"上册·6-10的认识和加减法","knowledge":["6-10各数的认识","10以内加减法","连加连减"]},{"name":"上册·20以内的进位加法","knowledge":["凑十法","9加几","8加几"]},{"name":"下册·100以内数的认识","knowledge":["数位（十位、个位）","100以内读写","大小比较"]},{"name":"下册·认识人民币","knowledge":["元角分认识","人民币换算","简单计算"]},{"name":"下册·100以内的加法和减法","knowledge":["整十数加减","两位数加减一位数","两位数加减整十数"]}]},"二年级":{"units":[{"name":"上册·长度单位","knowledge":["厘米的认识","米的认识","线段","测量方法"]},{"name":"上册·表内乘法（一）（二）","knowledge":["乘法的初步认识","2-6乘法口诀","7-9乘法口诀"]},{"name":"下册·表内除法（一）（二）","knowledge":["除法的初步认识","用口诀求商","平均分","包含除"]},{"name":"下册·混合运算","knowledge":["同级运算","两级运算","带括号的运算"]},{"name":"下册·有余数的除法","knowledge":["余数概念","竖式计算","解决问题"]},{"name":"下册·万以内数的认识","knowledge":["千的认识","万的认识","读写","大小比较"]}]},"三年级":{"units":[{"name":"上册·倍的认识 ⭐","knowledge":["倍的概念","求一个数是另一个数的几倍（用除法）","求一个数的几倍是多少（用乘法）","和倍问题基础"]},{"name":"上册·多位数乘一位数","knowledge":["整十整百乘一位数","笔算乘法","估算"]},{"name":"上册·长方形和正方形","knowledge":["四边形特征","周长概念","长方形周长","正方形周长"]},{"name":"上册·分数初步认识","knowledge":["几分之一","几分之几","简单比较","同分母加减"]},{"name":"下册·位置与方向","knowledge":["八个方向","描述路线","相对位置"]},{"name":"下册·除数是一位数的除法","knowledge":["口算除法","笔算除法","商的位数"]},{"name":"下册·复式统计表","knowledge":["数据整理","复式统计表","数据分析"]},{"name":"下册·两位数乘两位数","knowledge":["口算乘法","笔算乘法","解决问题"]},{"name":"下册·面积","knowledge":["面积含义","面积单位","长方形面积","正方形面积"]},{"name":"下册·年、月、日","knowledge":["年月日认识","24时计时法","经过时间计算"]},{"name":"下册·小数的初步认识","knowledge":["小数含义","比较大小","简单加减"]}]},"四年级":{"units":[{"name":"上册·大数的认识","knowledge":["亿以内计数","十进制","读写大数","近似数"]},{"name":"上册·公顷和平方千米","knowledge":["公顷","平方千米","单位换算"]},{"name":"上册·角的度量","knowledge":["线段射线直线","角的分类","量角","画角"]},{"name":"上册·三位数乘两位数","knowledge":["积的变化规律","笔算乘法","估算"]},{"name":"上册·平行四边形和梯形","knowledge":["互相垂直","互相平行","高和底","四边形关系"]},{"name":"上册·除数是两位数的除法","knowledge":["口算除法","笔算除法","商的变化规律"]},{"name":"下册·四则运算","knowledge":["加减法意义","乘除法意义","运算顺序","0的运算"]},{"name":"下册·观察物体","knowledge":["从不同方向看","组合体辨认"]},{"name":"下册·运算律","knowledge":["加法交换律","加法结合律","乘法交换律","乘法分配律"]},{"name":"下册·小数的意义和性质","knowledge":["小数的意义","读写","大小比较","小数点移动"]},{"name":"下册·三角形","knowledge":["三角形特征","分类","内角和","三边关系"]},{"name":"下册·小数加减法","knowledge":["小数加减","小数加减混合","整数运算律推广"]}]},"五年级":{"units":[{"name":"上册·小数乘法","knowledge":["小数乘整数","小数乘小数","积的近似数","运算律推广"]},{"name":"上册·位置","knowledge":["数对","行列定位"]},{"name":"上册·小数除法","knowledge":["除数是整数","除数是小数","商的近似数","循环小数"]},{"name":"上册·可能性","knowledge":["确定性","可能性大小","游戏公平"]},{"name":"上册·简易方程","knowledge":["字母表示数","等式的性质","解方程","列方程解决问题"]},{"name":"上册·多边形的面积","knowledge":["平行四边形面积","三角形面积","梯形面积","组合图形"]},{"name":"下册·因数和倍数","knowledge":["因数倍数","2-5-3倍数特征","质数和合数"]},{"name":"下册·长方体和正方体","knowledge":["特征","表面积","体积","容积"]},{"name":"下册·分数的意义和性质","knowledge":["分数意义","分数与除法","真分数假分数","约分通分"]},{"name":"下册·分数的加减法","knowledge":["同分母加减","异分母加减","分数加减混合"]}]},"六年级":{"units":[{"name":"上册·分数乘法","knowledge":["分数乘整数","分数乘分数","混合运算","解决问题"]},{"name":"上册·位置与方向二","knowledge":["描述路线","根据描述绘图"]},{"name":"上册·分数除法","knowledge":["倒数的认识","分数除法","比的意义","比的应用"]},{"name":"上册·圆","knowledge":["圆的周长","圆的面积","扇形"]},{"name":"上册·百分数","knowledge":["百分数意义","百分率","百分数应用"]},{"name":"下册·负数","knowledge":["负数意义","数轴","比较大小"]},{"name":"下册·百分数二","knowledge":["折扣成数","税率利率","百分数综合"]},{"name":"下册·圆柱与圆锥","knowledge":["圆柱特征","表面积","体积","圆锥体积"]},{"name":"下册·比例","knowledge":["比例意义","正反比例","比例尺","用比例解决"]},{"name":"下册·统计","knowledge":["统计图选择","平均数","可能性"]}]}};
 // ============================================================
 // 级联选择器逻辑
@@ -822,7 +839,7 @@ function renderGenerate(){
         <select id="genCount" style="flex:1;min-width:60px">
           <option value="1">1 题</option>
           <option value="2">2 题</option>
-          <option value="2" selected>2 题</option>
+          <option value="3">3 题</option>
           <option value="4">4 题</option>
           <option value="5">5 题</option>
         </select>
@@ -1131,23 +1148,6 @@ async function syncFromGist(silent){
   }
 }
 
-function bankSwitchTab(id){
-  document.getElementById('bankBrowseContent').style.display = id==='browse'?'block':'none';
-  document.getElementById('bankAddContent').style.display = id==='add'?'block':'none';
-  document.getElementById('bankBatchContent').style.display = id==='batch'?'block':'none';
-  ['bankTabBrowse','bankTabAdd','bankTabBatch'].forEach(tid=>{
-    const el=document.getElementById(tid);
-    if(!el) return;
-    const isActive = (tid==='bankTabBrowse' && id==='browse') || (tid==='bankTabAdd' && id==='add') || (tid==='bankTabBatch' && id==='batch');
-    el.style.background = isActive ? '#059669' : 'transparent';
-    el.style.color = isActive ? '#fff' : '#64748b';
-    el.style.fontWeight = isActive ? '600' : '400';
-  });
-  if(id==='add') loadAddGrade();
-  if(id==='browse'){bankList(1);bankStats();}
-}
-
-// ---- 浏览 ----
 function bankStats(){
   const el=document.getElementById('bankSummary');
   if(!el) return;
