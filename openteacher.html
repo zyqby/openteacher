@@ -6182,6 +6182,8 @@ function bankList(page){
   const pages = Math.max(1, Math.ceil(items.length / limit));
   page = Math.min(page, pages);
   const offset = (page - 1) * limit;
+  // 按难度排序（从易到难）
+  items.sort((a,b) => (a.difficulty||'').length - (b.difficulty||'').length);
   const pageItems = items.slice(offset, offset + limit);
 
   if(!pageItems.length){
