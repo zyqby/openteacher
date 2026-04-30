@@ -5221,7 +5221,15 @@ const BUILTIN_UNITS = ["上册·1-5的认识和加减法","上册·20以内的�
 // ============================================================
 function getLocalBank() {
   try {
-    const stored = JSON.parse(localStorage.getItem('openteacher_local_bank') || '[]');
+    let stored = JSON.parse(localStorage.getItem('openteacher_local_bank') || '[]');
+    // 兼容旧版短格式难度（★ → ★☆☆☆☆）
+    const diffMap = {'★':'★☆☆☆☆','★★':'★★☆☆☆','★★★':'★★★☆☆','★★★★':'★★★★☆','★★★★★':'★★★★★'};
+    stored = stored.map(q => {
+      if(q.difficulty && diffMap[q.difficulty]) q.difficulty = diffMap[q.difficulty];
+      return q;
+    });
+    // 写回localStorage以修正后续
+    localStorage.setItem('openteacher_local_bank', JSON.stringify(stored));
     // 合并内置题库 + 本地新增
     const all = [...BUILTIN_QUESTIONS, ...stored];
     // 去重（按题目内容）
