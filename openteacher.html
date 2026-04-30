@@ -6503,8 +6503,24 @@ function bankRandomGrade(grade){
 }
 
 // ============================================================
-// 启动
+// 启动（先清理旧版难度格式）
 // ============================================================
+// 强制修正localStorage中旧版短格式难度（如★ → ★☆☆☆☆）
+try {
+  const _raw = localStorage.getItem('openteacher_local_bank');
+  if(_raw) {
+    const _bank = JSON.parse(_raw);
+    const _diffMap = {'★':'★☆☆☆☆','★★':'★★☆☆☆','★★★':'★★★☆☆','★★★★':'★★★★☆','★★★★★':'★★★★★'};
+    let _changed = false;
+    _bank.forEach(q => {
+      if(q.difficulty && _diffMap[q.difficulty]) {
+        q.difficulty = _diffMap[q.difficulty];
+        _changed = true;
+      }
+    });
+    if(_changed) localStorage.setItem('openteacher_local_bank', JSON.stringify(_bank));
+  }
+} catch(e) {}
 init();
 </script>
 </body>
