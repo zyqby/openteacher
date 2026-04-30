@@ -6144,6 +6144,9 @@ function loadBankFilters(){
   const fill=(id,items)=>{
     const sel=document.getElementById(id);
     if(!sel) return;
+    const placeholder = sel.querySelector('option[value=""]');
+    sel.innerHTML='';
+    if(placeholder) sel.appendChild(placeholder);
     items.forEach(v=>{
       const o=document.createElement('option');
       o.value=v;o.textContent=v;
